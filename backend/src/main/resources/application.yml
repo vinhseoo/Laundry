@@ -40,7 +40,7 @@ server:
 logging:
   level:
     root: INFO
-    com.scim: DEBUG
+    com.bubbleflow: DEBUG
     org.springframework.security: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE

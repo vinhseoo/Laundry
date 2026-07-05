@@ -3,8 +3,8 @@ spring:
   # PostgreSQL
   datasource:
     url: jdbc:postgresql://localhost:5432/laundry_db
-    username: laundry_user
-    password: laundry_password
+    username: postgres
+    password: 12345678
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -33,5 +33,5 @@ spring:
 # Logging dev overrides
 logging:
   level:
-    com.scim: DEBUG
+    com.bubbleflow: DEBUG
     org.hibernate.SQL: DEBUG

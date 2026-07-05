@@ -6,9 +6,9 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ## 📊 Tổng quan tiến độ
 
-- **Trạng thái hiện tại:** Đã thiết lập khung dự án, cơ chế bảo mật JWT, phân quyền động, thiết kế lại giao diện Teal & Cyan cao cấp với font chữ Plus Jakarta Sans.
-- **Tiến độ tổng thể:** `[████░░░░░░░░░░░░░░░░]` ~20% Hoàn thành
-- **Giai đoạn hiện tại:** Thực hiện **Phase 1: Đăng nhập & Quản lý Người dùng/Quyền hạn**
+- **Trạng thái hiện tại:** Đã hoàn thành Phase 0 & Phase 1 (Đăng nhập, Quản lý Người dùng, Vai trò & Phân quyền động), sẵn sàng triển khai Phase 2.
+- **Tiến độ tổng thể:** `[█████░░░░░░░░░░░░░░░]` ~25% Hoàn thành
+- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 2: Master Data — Danh mục Dịch vụ & Thiết bị**
 
 ---
 
@@ -18,6 +18,7 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 | :--- | :--- | :--- | :--- |
 | 05/07/2026 | Antigravity | Re-branding & Thiết kế lại Giao diện | Xóa sạch lịch sử Git cũ để khởi tạo dự án giặt sấy mới. Thiết lập hệ thống Token Theme mới của Ant Design sử dụng font Plus Jakarta Sans và màu chủ đạo Cyan/Teal (#0891b2). Chuyển đổi Layout Sider sang màu sáng (Light Theme) hiện đại. |
 | 05/07/2026 | Antigravity | Đổi tên dữ liệu Seed & User | Chuyển đổi email admin từ `admin@scim.local` sang `admin@laundry.local`. Cập nhật danh sách Seed Permissions và Roles sang phạm vi quản lý cửa hàng giặt sấy. |
+| 05/07/2026 | Antigravity | Hoàn thiện & Sửa lỗi TypeScript Phase 1 | Cập nhật, căn chỉnh kiểu dữ liệu của Ant Design Table Columns, gán kiểu chặt chẽ cho Grouped Permissions, bổ sung thuộc tính phone cho User store và sửa đổi các import dư thừa giúp build thành công 100%. |
 
 ---
 
@@ -44,18 +45,18 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
   - [x] Zustand Auth store quản lý session & token
 - **Phân quyền người dùng (RBAC) & Cấu hình Động**
   - [x] Migration V2: Bổ sung cột `type` (ALL/CUSTOM) vào bảng `roles`, cấu trúc lại bảng `permissions` và `role_permissions`
-  - [ ] Auto-sync API: Quét toàn bộ Controller khi startup để tự động cập nhật bảng `permissions` (lấy description từ `@Operation` hoặc tên method)
-  - [ ] Spring Security: Bộ lọc phân quyền động (Dynamic AuthorizationManager) khớp URL + Method với phân quyền của người dùng (không dùng `@PreAuthorize` cứng)
-  - [ ] APIs: CRUD Roles (hỗ trợ type ALL/CUSTOM) và danh sách Permissions gom nhóm theo Controller
-  - [ ] Giao diện: Quản lý Roles (Checkbox gán Permission động gom nhóm theo Controller, tự động check/disable dựa trên type)
-  - [ ] Phân quyền ẩn hiện UI frontend động dựa trên danh sách quyền API nhận từ backend
+  - [x] Auto-sync API: Quét toàn bộ Controller khi startup để tự động cập nhật bảng `permissions` (lấy description từ `@Operation` hoặc tên method)
+  - [x] Spring Security: Bộ lọc phân quyền động (Dynamic AuthorizationManager) khớp URL + Method với phân quyền của người dùng (không dùng `@PreAuthorize` cứng)
+  - [x] APIs: CRUD Roles (hỗ trợ type ALL/CUSTOM) và danh sách Permissions gom nhóm theo Controller
+  - [x] Giao diện: Quản lý Roles (Checkbox gán Permission động gom nhóm theo Controller, tự động check/disable dựa trên type)
+  - [x] Phân quyền ẩn hiện UI frontend động dựa trên danh sách quyền API nhận từ backend
 - **Quản lý người dùng**
-  - [ ] APIs: CRUD Users (Search, Pagination, Soft delete)
-  - [ ] Giao diện: Quản lý người dùng (DataTable + FormModal)
-  - [ ] API & Giao diện: Reset mật khẩu (Admin)
+  - [x] APIs: CRUD Users (Search, Pagination, Soft delete)
+  - [x] Giao diện: Quản lý người dùng (DataTable + FormModal)
+  - [x] API & Giao diện: Reset mật khẩu (Admin)
 - **Trang cá nhân**
-  - [ ] API & Giao diện: Xem/Sửa Profile cá nhân & Thay đổi mật khẩu
-  - [ ] Tích hợp API Upload avatar cá nhân
+  - [x] API & Giao diện: Xem/Sửa Profile cá nhân & Thay đổi mật khẩu
+  - [x] Tích hợp API Upload avatar cá nhân
 
 ---
 

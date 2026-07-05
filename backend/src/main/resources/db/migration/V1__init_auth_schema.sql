@@ -78,8 +78,9 @@ CREATE INDEX idx_refresh_tokens_token ON refresh_tokens(token);
 -- Seed default roles
 INSERT INTO roles (name, description) VALUES
     ('ADMIN', 'System administrator with full access'),
-    ('MANAGER', 'Store manager with control over settings, service pricing, and reports'),
-    ('STAFF', 'Store staff for daily operations (order intake, machine operations, laundry dispatch)');
+    ('MANAGER', 'Warehouse manager with approval rights'),
+    ('WAREHOUSE_STAFF', 'Warehouse staff for daily operations'),
+    ('VIEWER', 'Read-only access to reports and dashboards');
 
 -- Seed default permissions
 INSERT INTO permissions (name, description, resource, action) VALUES
@@ -88,19 +89,19 @@ INSERT INTO permissions (name, description, resource, action) VALUES
     ('user:delete', 'Delete users', 'user', 'delete'),
     ('role:read', 'View roles', 'role', 'read'),
     ('role:write', 'Create/update roles', 'role', 'write'),
-    ('service:read', 'View services', 'service', 'read'),
-    ('service:write', 'Create/update services', 'service', 'write'),
-    ('equipment:read', 'View equipment', 'equipment', 'read'),
-    ('equipment:write', 'Create/update equipment', 'equipment', 'write'),
-    ('order:read', 'View orders', 'order', 'read'),
-    ('order:write', 'Create/update orders', 'order', 'write'),
-    ('order:dispatch', 'Dispatch orders to machines', 'order', 'dispatch'),
-    ('order:state', 'Transition order states', 'order', 'state'),
-    ('sla:read', 'View SLA alerts', 'sla', 'read'),
-    ('storage:read', 'View storage positions', 'storage', 'read'),
-    ('storage:write', 'Update storage positions', 'storage', 'write'),
-    ('delivery:read', 'View delivery list', 'delivery', 'read'),
-    ('delivery:write', 'Process deliveries', 'delivery', 'write'),
+    ('supplier:read', 'View suppliers', 'supplier', 'read'),
+    ('supplier:write', 'Create/update suppliers', 'supplier', 'write'),
+    ('supplier:delete', 'Delete suppliers', 'supplier', 'delete'),
+    ('warehouse:read', 'View warehouses', 'warehouse', 'read'),
+    ('warehouse:write', 'Create/update warehouses', 'warehouse', 'write'),
+    ('product:read', 'View products', 'product', 'read'),
+    ('product:write', 'Create/update products', 'product', 'write'),
+    ('product:delete', 'Delete products', 'product', 'delete'),
+    ('inventory:read', 'View inventory transactions', 'inventory', 'read'),
+    ('inventory:write', 'Create inventory transactions', 'inventory', 'write'),
+    ('inventory:approve', 'Approve/reject transactions', 'inventory', 'approve'),
+    ('stocktake:read', 'View stocktake sessions', 'stocktake', 'read'),
+    ('stocktake:write', 'Perform stocktaking', 'stocktake', 'write'),
     ('dashboard:read', 'View dashboard & analytics', 'dashboard', 'read'),
     ('setting:read', 'View system settings', 'setting', 'read'),
     ('setting:write', 'Update system settings', 'setting', 'write'),
