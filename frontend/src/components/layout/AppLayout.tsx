@@ -83,6 +83,12 @@ export const AppLayout: FC = () => {
         if (item.key === '/users') {
           return hasPermission('GET:/api/users') || hasPermission('GET:/api/roles') ? item : null;
         }
+        if (item.key === '/services') {
+          return hasPermission('GET:/api/services') ? item : null;
+        }
+        if (item.key === '/equipment') {
+          return hasPermission('GET:/api/equipment') ? item : null;
+        }
         return item;
       })
       .filter(Boolean);
@@ -114,19 +120,20 @@ export const AppLayout: FC = () => {
 
   return (
     <Layout className="min-h-screen">
-      <Sider trigger={null} collapsible collapsed={collapsed} className="shadow-sm border-r border-gray-100 bg-white">
-        <div className="h-16 flex items-center justify-center border-b border-gray-100 bg-white">
-          <span className="text-cyan-600 font-bold text-lg tracking-wider flex items-center gap-2">
+      <Sider trigger={null} collapsible collapsed={collapsed} className="shadow-xl border-r-0 bg-[#0f172a]">
+        <div className="h-16 flex items-center justify-center border-b border-slate-800 bg-[#0f172a]">
+          <span className="font-extrabold text-lg tracking-wider flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 drop-shadow-[0_2px_8px_rgba(99,102,241,0.3)]">
             {collapsed ? '🧼' : '🧼 BubbleFlow'}
           </span>
         </div>
         <Menu
-          theme="light"
+          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           defaultOpenKeys={['intake-group', 'ops-group', 'settings-group']}
           items={filteredMenuItems}
           onClick={handleMenuClick}
+          className="border-none py-4"
         />
       </Sider>
       <Layout>

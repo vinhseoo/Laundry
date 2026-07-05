@@ -121,3 +121,48 @@ export interface ChangePasswordRequest {
   newPassword?: string;
 }
 
+// ===== Service Catalog Types =====
+
+export interface ServiceResponse {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  price: number;
+  priceUnit: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ServiceRequest {
+  code: string;
+  name: string;
+  description?: string;
+  price: number;
+  priceUnit: string;
+}
+
+// ===== Equipment Catalog Types =====
+
+export interface EquipmentResponse {
+  id: number;
+  code: string;
+  name: string;
+  type: string; // WASHING_MACHINE, DRYER
+  capacity: number; // kg
+  status: string; // IDLE, RUNNING, MAINTENANCE, OUT_OF_SERVICE
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface EquipmentRequest {
+  code: string;
+  name: string;
+  type: string;
+  capacity: number;
+  status: string;
+}
+
+

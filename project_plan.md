@@ -6,9 +6,9 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ## 📊 Tổng quan tiến độ
 
-- **Trạng thái hiện tại:** Đã hoàn thành Phase 0 & Phase 1 (Đăng nhập, Quản lý Người dùng, Vai trò & Phân quyền động), sẵn sàng triển khai Phase 2.
-- **Tiến độ tổng thể:** `[█████░░░░░░░░░░░░░░░]` ~25% Hoàn thành
-- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 2: Master Data — Danh mục Dịch vụ & Thiết bị**
+- **Trạng thái hiện tại:** Đã hoàn thành Phase 0, Phase 1 & Phase 2 (Danh mục Dịch vụ & Thiết bị), sẵn sàng triển khai Phase 3.
+- **Tiến độ tổng thể:** `[████████░░░░░░░░░░░░]` ~40% Hoàn thành
+- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 3: Core Operations — Tiếp nhận & Điều phối đơn hàng**
 
 ---
 
@@ -19,6 +19,7 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 | 05/07/2026 | Antigravity | Re-branding & Thiết kế lại Giao diện | Xóa sạch lịch sử Git cũ để khởi tạo dự án giặt sấy mới. Thiết lập hệ thống Token Theme mới của Ant Design sử dụng font Plus Jakarta Sans và màu chủ đạo Cyan/Teal (#0891b2). Chuyển đổi Layout Sider sang màu sáng (Light Theme) hiện đại. |
 | 05/07/2026 | Antigravity | Đổi tên dữ liệu Seed & User | Chuyển đổi email admin từ `admin@scim.local` sang `admin@laundry.local`. Cập nhật danh sách Seed Permissions và Roles sang phạm vi quản lý cửa hàng giặt sấy. |
 | 05/07/2026 | Antigravity | Hoàn thiện & Sửa lỗi TypeScript Phase 1 | Cập nhật, căn chỉnh kiểu dữ liệu của Ant Design Table Columns, gán kiểu chặt chẽ cho Grouped Permissions, bổ sung thuộc tính phone cho User store và sửa đổi các import dư thừa giúp build thành công 100%. |
+| 06/07/2026 | Antigravity | Hoàn thiện Phase 2 & Tái thiết kế Giao diện | Tạo migrations V3 và code các lớp Entity, Repository, Service, Controller cho danh mục Dịch vụ & Thiết bị. Code 2 trang ServicesPage và EquipmentPage có grid giám sát real-time. Tái cấu hình toàn bộ theme token sang Indigo/Violet, đổi Sidebar sang giao diện tối sang trọng, và tạo trang đăng nhập Glassmorphism có bong bóng động. |
 
 ---
 
@@ -62,13 +63,13 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ### Phase 2: Master Data — Danh mục Dịch vụ & Thiết bị
 - **Quản lý Dịch vụ (Services)**
-  - [ ] Migration & Entity: Bảng `services` (mã dịch vụ, tên, mô tả, cách tính giá, đơn giá...)
-  - [ ] APIs: CRUD Dịch vụ (Hỗ trợ cấu hình gói dịch vụ: giặt sấy theo kg, giặt khô theo món/combo)
-  - [ ] Giao diện: Quản lý Bảng giá & Gói dịch vụ (DataTable + FormModal)
+  - [x] Migration & Entity: Bảng `services` (mã dịch vụ, tên, mô tả, cách tính giá, đơn giá...)
+  - [x] APIs: CRUD Dịch vụ (Hỗ trợ cấu hình gói dịch vụ: giặt sấy theo kg, giặt khô theo món/combo)
+  - [x] Giao diện: Quản lý Bảng giá & Gói dịch vụ (DataTable + FormModal)
 - **Quản lý Máy móc & Thiết bị (Equipment)**
-  - [ ] Migration & Entity: Bảng `equipments` (mã máy, loại máy: giặt/sấy, công suất, trạng thái: rảnh, đang chạy, bảo trì...)
-  - [ ] APIs: CRUD Thiết bị & Theo dõi trạng thái hoạt động của máy móc
-  - [ ] Giao diện: Màn hình Giám sát Máy móc (Dạng lưới trạng thái trực quan, cập nhật real-time)
+  - [x] Migration & Entity: Bảng `equipments` (mã máy, loại máy: giặt/sấy, công suất, trạng thái: rảnh, đang chạy, bảo trì...)
+  - [x] APIs: CRUD Thiết bị & Theo dõi trạng thái hoạt động của máy móc
+  - [x] Giao diện: Màn hình Giám sát Máy móc (Dạng lưới trạng thái trực quan, cập nhật real-time)
 
 ---
 

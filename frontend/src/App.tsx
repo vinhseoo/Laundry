@@ -28,14 +28,14 @@ const queryClient = new QueryClient({
 const themeConfig = {
   token: {
     // Colors
-    colorPrimary: '#0891b2', // Cyan 600
+    colorPrimary: '#6366f1', // Indigo 500
     colorSuccess: '#10b981', // Emerald 500
     colorWarning: '#f59e0b', // Amber 500
     colorError: '#ef4444', // Red 500
-    colorInfo: '#0891b2',
+    colorInfo: '#6366f1',
 
     // Typography
-    fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontFamily: "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     fontSize: 14,
 
     // Border
@@ -53,18 +53,19 @@ const themeConfig = {
   },
   components: {
     Layout: {
-      siderBg: '#ffffff',
+      siderBg: '#0f172a', // Slate 900
       headerBg: '#ffffff',
       bodyBg: '#f8fafc',
     },
     Menu: {
-      itemBg: '#ffffff',
-      itemSelectedBg: '#ecfeff',
-      itemSelectedColor: '#0891b2',
-      itemColor: '#475569',
-      itemHoverColor: '#0891b2',
-      itemHoverBg: '#f8fafc',
+      itemBg: '#0f172a',
+      itemSelectedBg: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+      itemSelectedColor: '#ffffff',
+      itemColor: '#94a3b8',
+      itemHoverColor: '#ffffff',
+      itemHoverBg: '#1e293b',
       itemBorderRadius: 8,
+      subMenuBg: '#0f172a',
     },
     Table: {
       headerBg: '#f8fafc',
