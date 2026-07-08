@@ -10,6 +10,8 @@ const UsersPage = lazy(() => import('./features/auth/pages/UsersPage'));
 const ProfilePage = lazy(() => import('./features/auth/pages/ProfilePage'));
 const ServicesPage = lazy(() => import('./features/services/pages/ServicesPage'));
 const EquipmentPage = lazy(() => import('./features/equipment/pages/EquipmentPage'));
+const OrderIntakePage = lazy(() => import('./features/orders/pages/OrderIntakePage'));
+const OrderListPage = lazy(() => import('./features/orders/pages/OrderListPage'));
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-screen bg-slate-50">
@@ -31,6 +33,8 @@ export const AppRoutes = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/equipment" element={<EquipmentPage />} />
+          <Route path="/orders/new" element={<OrderIntakePage />} />
+          <Route path="/orders" element={<OrderListPage />} />
           {/* Default redirect inside AppLayout */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>

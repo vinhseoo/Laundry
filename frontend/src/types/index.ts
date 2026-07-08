@@ -165,4 +165,65 @@ export interface EquipmentRequest {
   status: string;
 }
 
+// ===== Order & Basket Types =====
 
+export interface OrderItemRequest {
+  serviceId: number;
+  quantity: number;
+  notes?: string;
+}
+
+export interface OrderRequest {
+  customerName: string;
+  customerPhone: string;
+  notes?: string;
+  items: OrderItemRequest[];
+}
+
+export interface OrderItemResponse {
+  id: number;
+  serviceId: number;
+  serviceName: string;
+  serviceCode: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+  notes?: string;
+}
+
+export interface OrderResponse {
+  id: number;
+  orderCode: string;
+  customerName: string;
+  customerPhone: string;
+  totalAmount: number;
+  status: string; // RECEIVED, SORTING, WASHING, DRYING, AWAITING_DELIVERY, COMPLETED
+  notes?: string;
+  items: OrderItemResponse[];
+  createdAt: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface LaundryBasketRequest {
+  basketCode: string;
+  name?: string;
+  status?: string;
+  orderId?: number;
+  equipmentId?: number;
+}
+
+export interface LaundryBasketResponse {
+  id: number;
+  basketCode: string;
+  name?: string;
+  orderId?: number;
+  orderCode?: string;
+  equipmentId?: number;
+  equipmentCode?: string;
+  status: string; // IDLE, USING
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
