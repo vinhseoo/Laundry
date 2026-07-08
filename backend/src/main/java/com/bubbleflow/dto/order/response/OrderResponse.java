@@ -18,6 +18,9 @@ public class OrderResponse {
     private String status;
     private String notes;
     private List<OrderItemResponse> items;
+    private Long slaRemainingMinutes;
+    private Boolean slaViolated;
+    private String currentDuration;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

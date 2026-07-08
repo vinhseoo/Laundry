@@ -6,9 +6,9 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ## 📊 Tổng quan tiến độ
 
-- **Trạng thái hiện tại:** Đã hoàn thành Phase 0, Phase 1 & Phase 2 (Danh mục Dịch vụ & Thiết bị), sẵn sàng triển khai Phase 3.
-- **Tiến độ tổng thể:** `[████████░░░░░░░░░░░░]` ~40% Hoàn thành
-- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 3: Core Operations — Tiếp nhận & Điều phối đơn hàng**
+- **Trạng thái hiện tại:** Đã hoàn thành Phase 0 đến Phase 4 (State Machine & SLA Alerts), sẵn sàng triển khai Phase 5.
+- **Tiến độ tổng thể:** `[█████████████░░░░░░░]` ~65% Hoàn thành
+- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 5: Lưu kho chờ & Giao nhận trả hàng**
 
 ---
 
@@ -20,6 +20,8 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 | 05/07/2026 | Antigravity | Đổi tên dữ liệu Seed & User | Chuyển đổi email admin từ `admin@scim.local` sang `admin@laundry.local`. Cập nhật danh sách Seed Permissions và Roles sang phạm vi quản lý cửa hàng giặt sấy. |
 | 05/07/2026 | Antigravity | Hoàn thiện & Sửa lỗi TypeScript Phase 1 | Cập nhật, căn chỉnh kiểu dữ liệu của Ant Design Table Columns, gán kiểu chặt chẽ cho Grouped Permissions, bổ sung thuộc tính phone cho User store và sửa đổi các import dư thừa giúp build thành công 100%. |
 | 06/07/2026 | Antigravity | Hoàn thiện Phase 2 & Tái thiết kế Giao diện | Tạo migrations V3 và code các lớp Entity, Repository, Service, Controller cho danh mục Dịch vụ & Thiết bị. Code 2 trang ServicesPage và EquipmentPage có grid giám sát real-time. Tái cấu hình toàn bộ theme token sang Indigo/Violet, đổi Sidebar sang giao diện tối sang trọng, và tạo trang đăng nhập Glassmorphism có bong bóng động. |
+| 08/07/2026 | Antigravity | Hoàn thành Phase 3: Core Operations | Thiết lập migration V4, các thực thể `Order`, `OrderItem`, `LaundryBasket`. Tạo nghiệp vụ tính phí tự động, sinh mã hóa đơn, liên kết giỏ đồ với thiết bị và cập nhật trạng thái máy/đơn hàng khi chạy. Xây dựng giao diện OrderIntakePage (in biên nhận nhiệt) và OrderListPage điều hành máy giặt/sấy. |
+| 08/07/2026 | Antigravity | Hoàn thành Phase 4: Order Lifecycle & SLA | Thiết lập migration V5 cho `order_state_logs`. Cấu hình Spring Statemachine kiểm soát vòng đời đơn hàng. Tính toán SLA động của đơn hàng và gắn cờ quá hạn. Nâng cấp màn hình OrderListPage hiển thị banner cảnh báo quá hạn SLA, còi 🚨 nhấp nháy, cột thời hạn SLA, và thanh tiến trình Steps ngang trong expandable rows. |
 
 ---
 
@@ -75,26 +77,26 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ### Phase 3: Core Operations — Tiếp nhận & Điều phối đơn hàng
 - **Tiếp nhận đơn hàng (Order Intake)**
-  - [ ] Migration & Entity: Bảng `orders`, `order_items`, `laundry_baskets`
-  - [ ] APIs: Tạo đơn hàng tiếp nhận (Nhận đầu vào: cân ký đồ, chọn gói dịch vụ, phân loại đồ chăn ga/giày/vest...)
-  - [ ] Logic: Tự động tính toán giá tiền động theo kg hoặc theo món, tạo mã vạch/mã đơn hàng
-  - [ ] Giao diện: Màn hình tiếp nhận đơn hàng (Form tính tiền động, in biên nhận tạm thời)
+  - [x] Migration & Entity: Bảng `orders`, `order_items`, `laundry_baskets`
+  - [x] APIs: Tạo đơn hàng tiếp nhận (Nhận đầu vào: cân ký đồ, chọn gói dịch vụ, phân loại đồ chăn ga/giày/vest...)
+  - [x] Logic: Tự động tính toán giá tiền động theo kg hoặc theo món, tạo mã vạch/mã đơn hàng
+  - [x] Giao diện: Màn hình tiếp nhận đơn hàng (Form tính tiền động, in biên nhận tạm thời)
 - **Giao việc & Điều phối (Dispatching)**
-  - [ ] APIs: Gán đơn hàng/mã lồng giặt vào máy giặt hoặc máy sấy đang rảnh
-  - [ ] Giao diện: Thao tác điều phối đơn hàng vào lồng giặt/lồng sấy bằng kéo thả hoặc chọn nhanh
+  - [x] APIs: Gán đơn hàng/mã lồng giặt vào máy giặt hoặc máy sấy đang rảnh
+  - [x] Giao diện: Thao tác điều phối đơn hàng vào lồng giặt/lồng sấy bằng kéo thả hoặc chọn nhanh
 
 ---
 
 ### Phase 4: Order Lifecycle & SLA (State Machine)
 - **Quản lý Máy trạng thái đơn hàng (Spring Statemachine)**
-  - [ ] Backend: Định nghĩa và kiểm soát vòng đời đơn hàng qua các trạng thái:
+  - [x] Backend: Định nghĩa và kiểm soát vòng đời đơn hàng qua các trạng thái:
     `RECEIVED` (Tiếp nhận) -> `SORTING` (Phân loại) -> `WASHING` (Đang giặt) -> `DRYING` (Đang sấy) -> `AWAITING_DELIVERY` (Chờ nhận) -> `COMPLETED` (Đã hoàn thành)
-  - [ ] Database log: Bảng `order_state_logs` ghi lại thời gian chi tiết của mỗi lần đổi trạng thái để phục vụ tính toán SLA
-  - [ ] Giao diện: Quản lý tiến trình đơn hàng (sử dụng component Steps/Timeline trực quan)
+  - [x] Database log: Bảng `order_state_logs` ghi lại thời gian chi tiết của mỗi lần đổi trạng thái để phục vụ tính toán SLA
+  - [x] Giao diện: Quản lý tiến trình đơn hàng (sử dụng component Steps/Timeline trực quan)
 - **Kiểm soát thỏa thuận dịch vụ (SLA Alerts)**
-  - [ ] Logic: Kiểm tra thời hạn xử lý tối đa tại mỗi trạng thái (ví dụ: Chờ giặt quá 2 tiếng sẽ vi phạm SLA)
-  - [ ] APIs: API cảnh báo vi phạm SLA
-  - [ ] Giao diện: Hiển thị cảnh báo đỏ nổi bật trên màn hình quản lý đối với các đơn hàng quá hạn
+  - [x] Logic: Kiểm tra thời hạn xử lý tối đa tại mỗi trạng thái (ví dụ: Chờ giặt quá 2 tiếng sẽ vi phạm SLA)
+  - [x] APIs: API cảnh báo vi phạm SLA
+  - [x] Giao diện: Hiển thị cảnh báo đỏ nổi bật trên màn hình quản lý đối với các đơn hàng quá hạn
 
 ---
 

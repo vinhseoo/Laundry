@@ -24,6 +24,10 @@ export const orderService = {
     return apiClient.put(`/orders/${id}/status`, null, { params: { status } });
   },
 
+  getSlaWarnings: (): Promise<ApiResponse<OrderResponse[]>> => {
+    return apiClient.get('/orders/sla-warnings');
+  },
+
   delete: (id: number): Promise<ApiResponse<void>> => {
     return apiClient.delete(`/orders/${id}`);
   },

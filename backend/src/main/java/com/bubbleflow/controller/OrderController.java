@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -37,6 +38,12 @@ public class OrderController {
     @Operation(summary = "Get order by ID", description = "Retrieve details for a specific laundry order by ID")
     public ResponseEntity<ApiResponse<OrderResponse>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(orderService.getById(id)));
+    }
+
+    @GetMapping("/sla-warnings")
+    @Operation(summary = "Get SLA warning orders", description = "Retrieve a list of all active orders currently violating their SLA limits")
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getSlaWarnings() {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.getSlaWarnings()));
     }
 
     @PostMapping

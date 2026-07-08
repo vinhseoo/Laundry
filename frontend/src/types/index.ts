@@ -200,6 +200,9 @@ export interface OrderResponse {
   status: string; // RECEIVED, SORTING, WASHING, DRYING, AWAITING_DELIVERY, COMPLETED
   notes?: string;
   items: OrderItemResponse[];
+  slaRemainingMinutes?: number | null;
+  slaViolated?: boolean;
+  currentDuration?: string;
   createdAt: string;
   updatedAt?: string;
   createdBy?: string;

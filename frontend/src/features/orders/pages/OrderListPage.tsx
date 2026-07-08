@@ -14,7 +14,9 @@ import {
   Tooltip,
   Badge,
   Tabs,
-  Progress
+  Progress,
+  Steps,
+  Alert
 } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { 
@@ -35,6 +37,45 @@ import { useAuthStore } from '@/stores/authStore';
 import { PageContainer } from '@/components/layout/PageContainer';
 import type { OrderResponse, LaundryBasketResponse, EquipmentResponse } from '@/types';
 import dayjs from 'dayjs';
+
+const OrderTimelineSteps = ({ record }: { record: OrderResponse }) => {
+  const steps = [
+    { title: 'Tiếp nhận', description: record.status === 'RECEIVED' ? record.currentDuration : '' },
+    { title: 'Phân loại', description: record.status === 'SORTING' ? record.currentDuration : '' },
+    { title: 'Đang giặt', description: record.status === 'WASHING' ? record.currentDuration : '' },
+    { title: 'Đang sấy', description: record.status === 'DRYING' ? record.currentDuration : '' },
+    { title: 'Chờ trả đồ', description: record.status === 'AWAITING_DELIVERY' ? record.currentDuration : '' },
+    { title: 'Hoàn thành', description: record.status === 'COMPLETED' ? record.currentDuration : '' },
+  ];
+
+  const getStepIndex = (status: string) => {
+    switch (status) {
+      case 'RECEIVED': return 0;
+      case 'SORTING': return 1;
+      case 'WASHING': return 2;
+      case 'DRYING': return 3;
+      case 'AWAITING_DELIVERY': return 4;
+      case 'COMPLETED': return 5;
+      default: return 0;
+    }
+  };
+
+  return (
+    <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+      <div className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Tiến trình chi tiết:</div>
+      <Steps
+        current={getStepIndex(record.status)}
+        size="small"
+        items={steps}
+      />
+      {record.notes && (
+        <div className="mt-3 text-xs text-slate-600 bg-white p-2 border border-slate-100 rounded-md">
+          <span className="font-bold text-slate-700">Ghi chú đơn hàng:</span> {record.notes}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const OrderListPage = () => {
   const { hasPermission } = useAuthStore();
@@ -74,6 +115,16 @@ export const OrderListPage = () => {
       const response = await equipmentService.getAll({ size: 100 });
       return response.data.content;
     }
+  });
+
+  // SLA Warnings Query
+  const { data: slaWarnings } = useQuery({
+    queryKey: ['orders', 'sla-warnings'],
+    queryFn: async () => {
+      const response = await orderService.getSlaWarnings();
+      return response.data;
+    },
+    refetchInterval: 30000
   });
 
   const orders: OrderResponse[] = ordersData?.content || [];
@@ -167,7 +218,40 @@ export const OrderListPage = () => {
       title: 'Mã đơn hàng',
       dataIndex: 'orderCode',
       key: 'orderCode',
-      render: (code: string) => <span className="font-bold text-indigo-600 font-mono">{code}</span>,
+      render: (code: string, record) => (
+        <Space size={4}>
+          <span className="font-bold text-indigo-600 font-mono">{code}</span>
+          {record.slaViolated && (
+            <Tooltip title="Vi phạm SLA thời hạn xử lý!">
+              <span className="text-rose-500 animate-pulse text-base">🚨</span>
+            </Tooltip>
+          )}
+        </Space>
+      ),
+    },
+    {
+      title: 'Thời hạn SLA',
+      key: 'sla',
+      render: (_, record) => {
+        if (record.status === 'COMPLETED') {
+          return <Tag color="success" style={{ borderRadius: 6 }}>Đã hoàn thành</Tag>;
+        }
+        if (record.slaRemainingMinutes === undefined || record.slaRemainingMinutes === null) {
+          return <span className="text-slate-400 font-medium">-</span>;
+        }
+        if (record.slaViolated) {
+          return (
+            <Tag color="error" style={{ borderRadius: 6, fontStyle: 'normal', fontWeight: 700 }} className="animate-pulse m-0">
+              Trễ {Math.abs(record.slaRemainingMinutes)} phút
+            </Tag>
+          );
+        }
+        return (
+          <Tag color="warning" style={{ borderRadius: 6, fontWeight: 600 }} className="m-0">
+            Còn {record.slaRemainingMinutes} phút
+          </Tag>
+        );
+      }
     },
     {
       title: 'Khách hàng',
@@ -311,6 +395,20 @@ export const OrderListPage = () => {
             label: <span className="text-base px-2 font-medium"><SolutionOutlined /> Quản lý Đơn hàng</span>,
             children: (
               <div className="space-y-4 mt-2">
+                {/* SLA Warnings Alert Banner */}
+                {slaWarnings && slaWarnings.length > 0 && (
+                  <Alert
+                    message={
+                      <div className="flex items-center text-rose-800 text-xs md:text-sm font-semibold">
+                        <span>🚨 CẢNH BÁO SLA: Đang có {slaWarnings.length} đơn hàng vi phạm thời hạn xử lý tối đa! Vui lòng kiểm tra và xử lý gấp.</span>
+                      </div>
+                    }
+                    type="error"
+                    showIcon
+                    className="border-rose-100 bg-rose-50/70 rounded-xl shadow-xs"
+                  />
+                )}
+
                 {/* Search Bar */}
                 <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl border border-slate-100 shadow-xs">
                   <Input
@@ -352,6 +450,10 @@ export const OrderListPage = () => {
                     pageSize: ordersData?.size || 20,
                     current: (ordersData?.page || 0) + 1,
                     onChange: (p) => setPage(p - 1),
+                  }}
+                  expandable={{
+                    expandedRowRender: (record) => <OrderTimelineSteps record={record} />,
+                    rowExpandable: () => true,
                   }}
                   className="shadow-xs rounded-xl overflow-hidden border border-slate-100 bg-white"
                 />

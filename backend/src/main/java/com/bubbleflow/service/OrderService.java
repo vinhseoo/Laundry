@@ -10,5 +10,6 @@ public interface OrderService {
     OrderResponse getById(Long id);
     OrderResponse create(OrderRequest request);
     OrderResponse updateStatus(Long id, String status);
+    List<OrderResponse> getSlaWarnings();
     void delete(Long id);
 }
