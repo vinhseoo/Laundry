@@ -267,3 +267,44 @@ export interface OrderDeliveryRequest {
   shipperName?: string;
   shipperPhone?: string;
 }
+
+// ===== Dashboard & Report Types =====
+
+export interface DailyRevenue {
+  date: string;
+  revenue: number;
+}
+
+export interface ServiceRevenueShare {
+  serviceName: string;
+  revenue: number;
+}
+
+export interface MachineStatusDistribution {
+  status: string;
+  count: number;
+}
+
+export interface DashboardStatsResponse {
+  todayOrders: number;
+  todayRevenue: number;
+  activeMachines: number;
+  slaWarnings: number;
+  weeklyRevenue: DailyRevenue[];
+  serviceRevenueShare: ServiceRevenueShare[];
+  machineStatusDistribution: MachineStatusDistribution[];
+}
+
+export interface EquipmentReportResponse {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+  status: string;
+  totalCycles: number;
+  totalRuntimeHours: number;
+  depreciationPercent: number;
+  wearRate: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  hoursToNextMaintenance: number;
+  maintenanceStatus: 'OK' | 'DUE_SOON' | 'OVERDUE';
+}

@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -47,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
     private final ServiceRepository serviceRepository;
     private final OrderStateLogRepository orderStateLogRepository;
     private final StorageRackRepository storageRackRepository;
+    private final StringRedisTemplate stringRedisTemplate;
     private final StateMachineFactory<OrderState, OrderEvent> stateMachineFactory;
     private final OrderMapper orderMapper;
 
@@ -92,7 +94,24 @@ public class OrderServiceImpl implements OrderService {
         orderStateLogRepository.save(stateLog);
 
         log.info("Created order: {}", order.getOrderCode());
+        incrementRedisStats(order);
         return toEnrichedResponse(order);
+    }
+
+    private void incrementRedisStats(Order order) {
+        try {
+            String todayStr = java.time.LocalDate.now().toString();
+            String orderCountKey = "dashboard:stats:order_count:" + todayStr;
+            String revenueKey = "dashboard:stats:revenue:" + todayStr;
+
+            stringRedisTemplate.opsForValue().increment(orderCountKey);
+            stringRedisTemplate.opsForValue().increment(revenueKey, order.getTotalAmount().doubleValue());
+
+            stringRedisTemplate.expire(orderCountKey, java.time.Duration.ofDays(1));
+            stringRedisTemplate.expire(revenueKey, java.time.Duration.ofDays(1));
+        } catch (Exception e) {
+            log.warn("Failed to increment real-time Redis stats: {}", e.getMessage());
+        }
     }
 
     @Override

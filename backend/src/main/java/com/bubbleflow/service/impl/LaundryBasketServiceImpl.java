@@ -4,6 +4,7 @@ import com.bubbleflow.dto.basket.request.LaundryBasketRequest;
 import com.bubbleflow.dto.basket.response.LaundryBasketResponse;
 import com.bubbleflow.dto.response.PageResponse;
 import com.bubbleflow.entity.Equipment;
+import com.bubbleflow.entity.EquipmentUsageLog;
 import com.bubbleflow.entity.LaundryBasket;
 import com.bubbleflow.entity.Order;
 import com.bubbleflow.exception.BusinessException;
@@ -11,6 +12,7 @@ import com.bubbleflow.exception.DuplicateResourceException;
 import com.bubbleflow.exception.ResourceNotFoundException;
 import com.bubbleflow.mapper.LaundryBasketMapper;
 import com.bubbleflow.repository.EquipmentRepository;
+import com.bubbleflow.repository.EquipmentUsageLogRepository;
 import com.bubbleflow.repository.LaundryBasketRepository;
 import com.bubbleflow.repository.OrderRepository;
 import com.bubbleflow.service.LaundryBasketService;
@@ -30,6 +32,7 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
     private final LaundryBasketRepository basketRepository;
     private final OrderRepository orderRepository;
     private final EquipmentRepository equipmentRepository;
+    private final EquipmentUsageLogRepository equipmentUsageLogRepository;
     private final LaundryBasketMapper basketMapper;
 
     @Override
@@ -138,6 +141,14 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
         }
         orderRepository.save(order);
 
+        // Create equipment usage log
+        EquipmentUsageLog usageLog = EquipmentUsageLog.builder()
+                .equipment(equipment)
+                .order(order)
+                .startTime(java.time.LocalDateTime.now())
+                .build();
+        equipmentUsageLogRepository.save(usageLog);
+
         log.info("Dispatched basket {} to equipment {}", basket.getBasketCode(), equipment.getCode());
         return basketMapper.toResponse(basket);
     }
@@ -158,6 +169,15 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
 
         basket.setEquipment(null);
         basket = basketRepository.save(basket);
+
+        // End equipment usage log
+        equipmentUsageLogRepository.findFirstByEquipmentIdAndEndTimeIsNullOrderByStartTimeDesc(equipment.getId())
+                .ifPresent(logEntry -> {
+                    logEntry.setEndTime(java.time.LocalDateTime.now());
+                    long duration = java.time.Duration.between(logEntry.getStartTime(), logEntry.getEndTime()).toMinutes();
+                    logEntry.setDurationMinutes(duration);
+                    equipmentUsageLogRepository.save(logEntry);
+                });
 
         log.info("Released basket {} from equipment {}", basket.getBasketCode(), equipment.getCode());
         return basketMapper.toResponse(basket);

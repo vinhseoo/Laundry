@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
+import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -27,4 +28,23 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o FROM Order o WHERE o.storageRack.id = :rackId AND o.isActive = true AND o.status = 'AWAITING_DELIVERY'")
     Optional<Order> findActiveOrderByStorageRackId(@Param("rackId") Long rackId);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.createdAt >= :dateTime AND o.isActive = true")
+    long countByCreatedAtAfterAndIsActiveTrue(@Param("dateTime") java.time.LocalDateTime dateTime);
+
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.createdAt >= :dateTime AND o.isActive = true")
+    java.math.BigDecimal sumTotalAmountByCreatedAtAfterAndIsActiveTrue(@Param("dateTime") java.time.LocalDateTime dateTime);
+
+    @Query("SELECT CAST(o.createdAt AS date) as dateVal, SUM(o.totalAmount) as total " +
+           "FROM Order o " +
+           "WHERE o.createdAt >= :startDate AND o.isActive = true " +
+           "GROUP BY CAST(o.createdAt AS date) " +
+           "ORDER BY CAST(o.createdAt AS date) ASC")
+    List<Object[]> getDailyRevenueForLast7Days(@Param("startDate") java.time.LocalDateTime startDate);
+
+    @Query("SELECT s.name as serviceName, SUM(oi.subtotal) as total " +
+           "FROM OrderItem oi JOIN oi.service s JOIN oi.order o " +
+           "WHERE o.isActive = true " +
+           "GROUP BY s.name")
+    List<Object[]> getServiceRevenueShare();
 }
