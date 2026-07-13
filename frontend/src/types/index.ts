@@ -308,3 +308,20 @@ export interface EquipmentReportResponse {
   hoursToNextMaintenance: number;
   maintenanceStatus: 'OK' | 'DUE_SOON' | 'OVERDUE';
 }
+
+// ===== System Settings Types =====
+
+export interface SystemSettingResponse {
+  id: number;
+  settingKey: string;
+  settingValue: string;
+  description: string;
+  groupName: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface SystemSettingRequest {
+  settingKey: string;
+  settingValue: string;
+}

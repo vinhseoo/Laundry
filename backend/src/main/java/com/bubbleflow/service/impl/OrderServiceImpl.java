@@ -49,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStateLogRepository orderStateLogRepository;
     private final StorageRackRepository storageRackRepository;
     private final StringRedisTemplate stringRedisTemplate;
+    private final SystemSettingsServiceImpl systemSettingsService;
     private final StateMachineFactory<OrderState, OrderEvent> stateMachineFactory;
     private final OrderMapper orderMapper;
 
@@ -287,12 +288,12 @@ public class OrderServiceImpl implements OrderService {
         switch (state) {
             case RECEIVED:
             case SORTING:
-                return 120; // 2 hours
+                return systemSettingsService.getIntegerSetting("sla_received_sorting", 120);
             case WASHING:
             case DRYING:
-                return 60; // 1 hour
+                return systemSettingsService.getIntegerSetting("sla_washing_drying", 60);
             case AWAITING_DELIVERY:
-                return 1440; // 24 hours
+                return systemSettingsService.getIntegerSetting("sla_awaiting_delivery", 1440);
             case COMPLETED:
             default:
                 return Long.MAX_VALUE;
