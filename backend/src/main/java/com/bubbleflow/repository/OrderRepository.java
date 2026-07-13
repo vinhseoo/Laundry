@@ -24,4 +24,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findWithFilters(@Param("search") String search,
                                 @Param("status") String status,
                                 Pageable pageable);
+
+    @Query("SELECT o FROM Order o WHERE o.storageRack.id = :rackId AND o.isActive = true AND o.status = 'AWAITING_DELIVERY'")
+    Optional<Order> findActiveOrderByStorageRackId(@Param("rackId") Long rackId);
 }

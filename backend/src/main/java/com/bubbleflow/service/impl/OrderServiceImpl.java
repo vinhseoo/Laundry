@@ -2,11 +2,13 @@ package com.bubbleflow.service.impl;
 
 import com.bubbleflow.dto.order.request.OrderItemRequest;
 import com.bubbleflow.dto.order.request.OrderRequest;
+import com.bubbleflow.dto.order.request.OrderDeliveryRequest;
 import com.bubbleflow.dto.order.response.OrderResponse;
 import com.bubbleflow.dto.response.PageResponse;
 import com.bubbleflow.entity.Order;
 import com.bubbleflow.entity.OrderItem;
 import com.bubbleflow.entity.Service;
+import com.bubbleflow.entity.StorageRack;
 import com.bubbleflow.entity.OrderStateLog;
 import com.bubbleflow.entity.state.OrderEvent;
 import com.bubbleflow.entity.state.OrderState;
@@ -16,6 +18,7 @@ import com.bubbleflow.mapper.OrderMapper;
 import com.bubbleflow.repository.OrderRepository;
 import com.bubbleflow.repository.ServiceRepository;
 import com.bubbleflow.repository.OrderStateLogRepository;
+import com.bubbleflow.repository.StorageRackRepository;
 import com.bubbleflow.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ServiceRepository serviceRepository;
     private final OrderStateLogRepository orderStateLogRepository;
+    private final StorageRackRepository storageRackRepository;
     private final StateMachineFactory<OrderState, OrderEvent> stateMachineFactory;
     private final OrderMapper orderMapper;
 
@@ -122,6 +126,90 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Updated order status: {} -> {}", order.getOrderCode(), newStatus);
         return toEnrichedResponse(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse assignRack(Long id, Long rackId) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        if (!"AWAITING_DELIVERY".equals(order.getStatus())) {
+            throw new BusinessException("Chỉ được gán kệ cho đơn hàng đang chờ nhận (AWAITING_DELIVERY).");
+        }
+        if (order.getStorageRack() != null) {
+            StorageRack oldRack = order.getStorageRack();
+            oldRack.setStatus("AVAILABLE");
+            storageRackRepository.save(oldRack);
+        }
+        StorageRack rack = storageRackRepository.findById(rackId)
+                .orElseThrow(() -> new ResourceNotFoundException("StorageRack", "id", rackId));
+        if (!"AVAILABLE".equals(rack.getStatus())) {
+            throw new BusinessException("Kệ " + rack.getName() + " không ở trạng thái sẵn sàng.");
+        }
+        rack.setStatus("OCCUPIED");
+        storageRackRepository.save(rack);
+        order.setStorageRack(rack);
+        order = orderRepository.save(order);
+        log.info("Assigned storage rack {} to order {}", rack.getName(), order.getOrderCode());
+        return toEnrichedResponse(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse deliverOrder(Long id, OrderDeliveryRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        String oldStatus = order.getStatus();
+        if (!"AWAITING_DELIVERY".equals(oldStatus)) {
+            throw new BusinessException("Chỉ giao nhận trả hàng cho đơn hàng ở trạng thái chờ nhận.");
+        }
+        validateTransition(oldStatus, "COMPLETED", order.getOrderCode());
+        releaseRackIfAssigned(order);
+        
+        order.setStatus("COMPLETED");
+        order.setPaymentStatus("PAID");
+        order.setPaymentMethod(request.getPaymentMethod());
+        order.setDeliveryType(request.getDeliveryType());
+        if ("SHIPPER".equals(request.getDeliveryType())) {
+            order.setShipperName(request.getShipperName());
+            order.setShipperPhone(request.getShipperPhone());
+        }
+        order.setDeliveredAt(LocalDateTime.now());
+        order.setDeliveredBy(getCurrentAuditor());
+        order = orderRepository.save(order);
+
+        saveStateLog(order, oldStatus, "COMPLETED");
+        log.info("Delivered order: {}", order.getOrderCode());
+        return toEnrichedResponse(order);
+    }
+
+    private void releaseRackIfAssigned(Order order) {
+        if (order.getStorageRack() != null) {
+            StorageRack rack = order.getStorageRack();
+            rack.setStatus("AVAILABLE");
+            storageRackRepository.save(rack);
+            order.setStorageRack(null);
+        }
+    }
+
+    private String getCurrentAuditor() {
+        org.springframework.security.core.context.SecurityContext context = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext();
+        if (context != null && context.getAuthentication() != null) {
+            return context.getAuthentication().getName();
+        }
+        return "system";
+    }
+
+    private void saveStateLog(Order order, String fromState, String toState) {
+        OrderStateLog stateLog = OrderStateLog.builder()
+                .order(order)
+                .fromState(fromState)
+                .toState(toState)
+                .changedBy(order.getUpdatedBy() != null ? order.getUpdatedBy() : getCurrentAuditor())
+                .changedAt(LocalDateTime.now())
+                .build();
+        orderStateLogRepository.save(stateLog);
     }
 
     @Override

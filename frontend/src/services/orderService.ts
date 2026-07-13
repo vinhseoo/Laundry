@@ -4,6 +4,7 @@ import type {
   PageResponse, 
   OrderResponse, 
   OrderRequest, 
+  OrderDeliveryRequest,
   TableParams 
 } from '@/types';
 
@@ -22,6 +23,14 @@ export const orderService = {
 
   updateStatus: (id: number, status: string): Promise<ApiResponse<OrderResponse>> => {
     return apiClient.put(`/orders/${id}/status`, null, { params: { status } });
+  },
+
+  assignRack: (id: number, rackId: number): Promise<ApiResponse<OrderResponse>> => {
+    return apiClient.put(`/orders/${id}/assign-rack`, null, { params: { rackId } });
+  },
+
+  deliver: (id: number, data: OrderDeliveryRequest): Promise<ApiResponse<OrderResponse>> => {
+    return apiClient.put(`/orders/${id}/delivery`, data);
   },
 
   getSlaWarnings: (): Promise<ApiResponse<OrderResponse[]>> => {

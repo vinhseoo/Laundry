@@ -61,6 +61,22 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok(orderService.updateStatus(id, status)));
     }
 
+    @PutMapping("/{id}/assign-rack")
+    @Operation(summary = "Assign storage rack to order", description = "Assign a specific storage rack to an awaiting delivery order")
+    public ResponseEntity<ApiResponse<OrderResponse>> assignRack(
+            @PathVariable Long id,
+            @RequestParam Long rackId) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.assignRack(id, rackId)));
+    }
+
+    @PutMapping("/{id}/delivery")
+    @Operation(summary = "Deliver order", description = "Process payment and deliver/handover the laundry order")
+    public ResponseEntity<ApiResponse<OrderResponse>> deliverOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody com.bubbleflow.dto.order.request.OrderDeliveryRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.deliverOrder(id, request)));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete order", description = "Soft delete an order from history")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {

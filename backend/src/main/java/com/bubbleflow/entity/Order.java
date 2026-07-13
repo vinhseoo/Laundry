@@ -33,6 +33,33 @@ public class Order extends BaseEntity {
     @Builder.Default
     private String status = "RECEIVED"; // RECEIVED, SORTING, WASHING, DRYING, AWAITING_DELIVERY, COMPLETED
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "storage_rack_id")
+    private StorageRack storageRack;
+
+    @Column(name = "payment_status", nullable = false, length = 50)
+    @Builder.Default
+    private String paymentStatus = "UNPAID"; // UNPAID, PAID
+
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod;
+
+    @Column(name = "delivery_type", nullable = false, length = 50)
+    @Builder.Default
+    private String deliveryType = "PICKUP"; // PICKUP, SHIPPER
+
+    @Column(name = "shipper_name", length = 150)
+    private String shipperName;
+
+    @Column(name = "shipper_phone", length = 50)
+    private String shipperPhone;
+
+    @Column(name = "delivered_at")
+    private java.time.LocalDateTime deliveredAt;
+
+    @Column(name = "delivered_by", length = 100)
+    private String deliveredBy;
+
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 

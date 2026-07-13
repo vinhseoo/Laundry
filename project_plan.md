@@ -6,9 +6,9 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ## 📊 Tổng quan tiến độ
 
-- **Trạng thái hiện tại:** Đã hoàn thành Phase 0 đến Phase 4 (State Machine & SLA Alerts), sẵn sàng triển khai Phase 5.
-- **Tiến độ tổng thể:** `[█████████████░░░░░░░]` ~65% Hoàn thành
-- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 5: Lưu kho chờ & Giao nhận trả hàng**
+- **Trạng thái hiện tại:** Đã hoàn thành Phase 0 đến Phase 5, sẵn sàng triển khai Phase 6.
+- **Tiến độ tổng thể:** `[████████████████░░░░]` ~80% Hoàn thành
+- **Giai đoạn hiện tại:** Chuẩn bị thực hiện **Phase 6: Dashboard & Báo cáo Phân tích**
 
 ---
 
@@ -16,6 +16,7 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 | Ngày | Người thực hiện | Nội dung thay đổi / Sửa lỗi | Chi tiết / File liên quan |
 | :--- | :--- | :--- | :--- |
+| 13/07/2026 | Antigravity | Hoàn thành Phase 5: Lưu kho chờ & Giao nhận | Thiết lập migration V6, tạo thực thể StorageRack, bổ sung các trường thanh toán & giao hàng cho Order, lập trình API gán kệ và giao nhận (deliverOrder), xây dựng màn hình quản lý Kho chờ & Giao nhận trả hàng (StoragePage) với thiết kế hiện đại. |
 | 05/07/2026 | Antigravity | Re-branding & Thiết kế lại Giao diện | Xóa sạch lịch sử Git cũ để khởi tạo dự án giặt sấy mới. Thiết lập hệ thống Token Theme mới của Ant Design sử dụng font Plus Jakarta Sans và màu chủ đạo Cyan/Teal (#0891b2). Chuyển đổi Layout Sider sang màu sáng (Light Theme) hiện đại. |
 | 05/07/2026 | Antigravity | Đổi tên dữ liệu Seed & User | Chuyển đổi email admin từ `admin@scim.local` sang `admin@laundry.local`. Cập nhật danh sách Seed Permissions và Roles sang phạm vi quản lý cửa hàng giặt sấy. |
 | 05/07/2026 | Antigravity | Hoàn thiện & Sửa lỗi TypeScript Phase 1 | Cập nhật, căn chỉnh kiểu dữ liệu của Ant Design Table Columns, gán kiểu chặt chẽ cho Grouped Permissions, bổ sung thuộc tính phone cho User store và sửa đổi các import dư thừa giúp build thành công 100%. |
@@ -102,12 +103,12 @@ Tài liệu này dùng để theo dõi tiến độ phát triển hệ thống Q
 
 ### Phase 5: Lưu kho chờ & Giao nhận trả hàng
 - **Đóng gói & Lưu kho chờ**
-  - [ ] Migration & Entity: Bảng `storage_racks` (quản lý kệ đồ hoàn thành)
-  - [ ] APIs: Cập nhật vị trí kệ chờ sau khi sấy xong (Ví dụ: Kệ B - Tầng 3) để dễ tìm đồ
-  - [ ] Giao diện: Quản lý kệ lưu kho chờ & Tìm kiếm vị trí đồ theo đơn hàng
+  - [x] Migration & Entity: Bảng `storage_racks` (quản lý kệ đồ hoàn thành)
+  - [x] APIs: Cập nhật vị trí kệ chờ sau khi sấy xong (Ví dụ: Kệ B - Tầng 3) để dễ tìm đồ
+  - [x] Giao diện: Quản lý kệ lưu kho chờ & Tìm kiếm vị trí đồ theo đơn hàng
 - **Giao nhận trả hàng (Delivery)**
-  - [ ] APIs: Quy trình thanh toán, xuất kho và giao trả đồ cho khách hàng tại quầy hoặc bàn giao shipper
-  - [ ] Giao diện: Màn hình bàn giao/bàn giao shipper và cập nhật trạng thái thanh toán
+  - [x] APIs: Quy trình thanh toán, xuất kho và giao trả đồ cho khách hàng tại quầy hoặc bàn giao shipper
+  - [x] Giao diện: Màn hình bàn giao/bàn giao shipper và cập nhật trạng thái thanh toán
 
 ---
 

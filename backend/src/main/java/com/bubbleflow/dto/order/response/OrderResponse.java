@@ -18,6 +18,15 @@ public class OrderResponse {
     private String status;
     private String notes;
     private List<OrderItemResponse> items;
+    private Long storageRackId;
+    private String storageRackName;
+    private String paymentStatus;
+    private String paymentMethod;
+    private String deliveryType;
+    private String shipperName;
+    private String shipperPhone;
+    private LocalDateTime deliveredAt;
+    private String deliveredBy;
     private Long slaRemainingMinutes;
     private Boolean slaViolated;
     private String currentDuration;

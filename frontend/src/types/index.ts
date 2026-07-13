@@ -200,6 +200,15 @@ export interface OrderResponse {
   status: string; // RECEIVED, SORTING, WASHING, DRYING, AWAITING_DELIVERY, COMPLETED
   notes?: string;
   items: OrderItemResponse[];
+  storageRackId?: number | null;
+  storageRackName?: string | null;
+  paymentStatus?: string;
+  paymentMethod?: string | null;
+  deliveryType?: string;
+  shipperName?: string | null;
+  shipperPhone?: string | null;
+  deliveredAt?: string | null;
+  deliveredBy?: string | null;
   slaRemainingMinutes?: number | null;
   slaViolated?: boolean;
   currentDuration?: string;
@@ -229,4 +238,32 @@ export interface LaundryBasketResponse {
   isActive: boolean;
   createdAt: string;
   updatedAt?: string;
+}
+
+// ===== Storage Rack Types =====
+
+export interface StorageRackRequest {
+  code: string;
+  name: string;
+  status?: string;
+}
+
+export interface StorageRackResponse {
+  id: number;
+  code: string;
+  name: string;
+  status: string; // AVAILABLE, OCCUPIED, MAINTENANCE
+  isActive: boolean;
+  currentOrderCode?: string | null;
+  currentCustomerName?: string | null;
+  currentOrderId?: number | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface OrderDeliveryRequest {
+  paymentMethod: string;
+  deliveryType: string;
+  shipperName?: string;
+  shipperPhone?: string;
 }
