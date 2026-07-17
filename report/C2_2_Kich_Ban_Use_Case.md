@@ -8,6 +8,9 @@
 
 ### 2.2.1. Kịch bản Use Case 1: Tiếp nhận đơn hàng (Order Intake)
 
+#### Minh họa giao diện Tiếp nhận đơn hàng:
+![Giao diện Tiếp nhận đơn hàng UC_01](images/order_intake.png)
+
 * **Tên Use Case**: Tiếp nhận đơn hàng & Cân ký tự động
 * **Mã Use Case**: UC_01
 * **Tác nhân chính**: Nhân viên cửa hàng (Staff)
@@ -41,6 +44,9 @@
 ---
 
 ### 2.2.2. Kịch bản Use Case 2: Điều phối & Gán lồng giặt (Dispatching)
+
+#### Minh họa giao diện Điều phối thiết bị:
+![Giao diện Lưới Giám sát và Điều phối Thiết bị UC_02](images/equipment_monitoring.png)
 
 * **Tên Use Case**: Điều phối & Gán lồng giặt vào máy
 * **Mã Use Case**: UC_02
@@ -103,6 +109,9 @@
 ---
 
 ### 2.2.4. Kịch bản Use Case 4: Giám sát & Cảnh báo vi phạm SLA (SLA Alerting)
+
+#### Minh họa giao diện Cảnh báo SLA trễ hạn:
+![Giao diện Cảnh báo vi phạm SLA UC_04](images/sla_alerts.png)
 
 * **Tên Use Case**: Giám sát & Cảnh báo vi phạm SLA
 * **Mã Use Case**: UC_04

@@ -62,51 +62,6 @@ Yêu cầu chức năng của hệ thống được chia làm 5 phân hệ chín
 ### 2.1.4. Biểu đồ Use Case tổng thể hệ thống
 Dưới đây là sơ đồ Use Case tổng thể của hệ thống BubbleFlow, thể hiện các chức năng chính và các tác nhân tương tác:
 
-```mermaid
-usecaseDiagram
-    actor Admin as "Quản trị viên (Admin)"
-    actor Manager as "Quản lý (Manager)"
-    actor Staff as "Nhân viên (Staff)"
-    
-    %% Inheritances
-    Admin --|> Manager
-    Manager --|> Staff
-    
-    %% Staff Use Cases
-    rect "Phân hệ Nghiệp vụ Cửa hàng"
-        usecase UC_Login as "Đăng nhập hệ thống"
-        usecase UC_Profile as "Xem & Thay đổi Profile"
-        usecase UC_Intake as "Tiếp nhận đơn hàng & In hóa đơn"
-        usecase UC_Dispatch as "Điều phối đồ vào Máy"
-        usecase UC_UpdateState as "Cập nhật trạng thái đơn hàng"
-        usecase UC_SLA as "Theo dõi cảnh báo SLA"
-    end
-    
-    %% Manager Use Cases
-    rect "Phân hệ Quản lý & Thống kê"
-        usecase UC_Service as "Quản lý danh mục Dịch vụ"
-        usecase UC_Equipment as "Quản lý danh sách Thiết bị"
-        usecase UC_Dashboard as "Xem báo cáo doanh thu & Hiệu suất máy"
-    end
-    
-    %% Admin Use Cases
-    rect "Phân hệ Cấu hình hệ thống"
-        usecase UC_User as "Quản lý tài khoản Nhân viên"
-        usecase UC_Role as "Quản lý vai trò & Phân quyền động"
-    end
+#### Hình ảnh trực quan sơ đồ Use Case:
+![Sơ đồ Use Case tổng thể hệ thống BubbleFlow](images/usecase_diagram.png)
 
-    %% Links
-    Staff --> UC_Login
-    Staff --> UC_Profile
-    Staff --> UC_Intake
-    Staff --> UC_Dispatch
-    Staff --> UC_UpdateState
-    Staff --> UC_SLA
-    
-    Manager --> UC_Service
-    Manager --> UC_Equipment
-    Manager --> UC_Dashboard
-    
-    Admin --> UC_User
-    Admin --> UC_Role
-```

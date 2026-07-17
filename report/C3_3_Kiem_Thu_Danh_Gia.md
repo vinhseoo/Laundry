@@ -23,46 +23,18 @@ Các kịch bản kiểm thử UAT tập trung vào việc xác minh các quy tr
 
 ### 3.3.2. Thử nghiệm tự động (Automated Testing)
 
-Nhóm phát triển đã xây dựng các bộ Unit Test sử dụng **JUnit 5** và **Spring Boot Test** để kiểm thử tự động tính đúng đắn của máy trạng thái đơn hàng (Spring Statemachine) ở backend, đảm bảo vòng đời đơn hàng không bị phá vỡ khi thay đổi mã nguồn.
+Nhóm phát triển đã xây dựng các bộ kiểm thử tự động (Unit Tests) sử dụng **JUnit 5** và **Spring Boot Test** để kiểm chứng hoạt động của máy trạng thái đơn hàng (Spring Statemachine) ở backend. Việc này đảm bảo các ràng buộc nghiệp vụ về vòng đời đơn hàng luôn được thực thi chính xác và không bị phá vỡ khi thay đổi mã nguồn trong tương lai.
 
-```java
-@SpringBootTest
-@ActiveProfiles("test")
-public class OrderStateMachineTest {
+Các trường hợp thử nghiệm tự động chính bao gồm:
 
-    @Autowired
-    private StateMachineFactory<OrderState, OrderEvent> stateMachineFactory;
+| Mã Test | Tên Phương Thức Kiểm Thử | Mục Tiêu Kiểm Thử | Kết Quả Chạy |
+| :--- | :--- | :--- | :---: |
+| **UT-01** | `testSuccessfulOrderLifecycleTransitions` | Xác minh chuỗi chuyển trạng thái chuẩn tuần tự từ `RECEIVED` sang `SORTING` và `WASHING` diễn ra thành công khi gửi các sự kiện tương ứng. | **Passed** |
+| **UT-02** | `testInvalidTransitionIsBlocked` | Đảm bảo hệ thống tự động chặn đứng và từ chối các yêu cầu chuyển trạng thái không hợp lệ (ví dụ: chuyển từ `RECEIVED` trực tiếp sang `DRYING` mà không qua giặt). | **Passed** |
 
-    @Test
-    public void testSuccessfulOrderLifecycleTransitions() throws Exception {
-        StateMachine<OrderState, OrderEvent> sm = stateMachineFactory.getStateMachine("test-order-1");
-        sm.startReactively().block();
+#### Minh họa kết quả chạy thử nghiệm tự động:
+![Báo cáo kết quả chạy thử nghiệm tự động JUnit](images/test_runner_report.png)
 
-        // 1. Trạng thái ban đầu phải là RECEIVED
-        assertEquals(OrderState.RECEIVED, sm.getState().getId());
-
-        // 2. Chuyển sang SORTING (Hợp lệ)
-        sm.sendEvent(Mono.just(new GenericMessage<>(OrderEvent.START_SORT))).subscribe();
-        assertEquals(OrderState.SORTING, sm.getState().getId());
-
-        // 3. Chuyển sang WASHING (Hợp lệ)
-        sm.sendEvent(Mono.just(new GenericMessage<>(OrderEvent.START_WASH))).subscribe();
-        assertEquals(OrderState.WASHING, sm.getState().getId());
-    }
-
-    @Test
-    public void testInvalidTransitionIsBlocked() throws Exception {
-        StateMachine<OrderState, OrderEvent> sm = stateMachineFactory.getStateMachine("test-order-2");
-        sm.startReactively().block();
-
-        // Cố tình kích hoạt sự kiện FINISH_PROCESS (hoàn thành sấy) khi đơn hàng mới RECEIVED
-        sm.sendEvent(Mono.just(new GenericMessage<>(OrderEvent.FINISH_PROCESS))).subscribe();
-
-        // Trạng thái phải giữ nguyên ở RECEIVED, không được phép chuyển
-        assertEquals(OrderState.RECEIVED, sm.getState().getId());
-    }
-}
-```
 
 ---
 
