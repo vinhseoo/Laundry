@@ -36,18 +36,22 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         String clientIp = getClientIp(request);
         String key = "rate_limit:" + clientIp + ":" + request.getRequestURI();
 
-        Long count = stringRedisTemplate.opsForValue().increment(key);
-        if (count != null && count == 1) {
-            stringRedisTemplate.expire(key, Duration.ofSeconds(duration));
-        }
+        try {
+            Long count = stringRedisTemplate.opsForValue().increment(key);
+            if (count != null && count == 1) {
+                stringRedisTemplate.expire(key, Duration.ofSeconds(duration));
+            }
 
-        if (count != null && count > limit) {
-            log.warn("Rate limit exceeded for IP: {} on URI: {}. Current count: {}", clientIp, request.getRequestURI(), count);
-            response.setStatus(429);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"success\":false,\"message\":\"Bạn đã gửi quá nhiều yêu cầu (Rate Limit Exceeded). Vui lòng thử lại sau.\"}");
-            return false;
+            if (count != null && count > limit) {
+                log.warn("Rate limit exceeded for IP: {} on URI: {}. Current count: {}", clientIp, request.getRequestURI(), count);
+                response.setStatus(429);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"success\":false,\"message\":\"Bạn đã gửi quá nhiều yêu cầu (Rate Limit Exceeded). Vui lòng thử lại sau.\"}");
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("Redis connection failed during rate limiting. Bypassing rate limit check. Error: {}", e.getMessage());
         }
 
         return true;
