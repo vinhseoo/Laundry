@@ -11,8 +11,20 @@ import java.util.List;
 @Mapper(componentModel = "spring", builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface LaundryBasketMapper {
 
+    default Double getOrderWeight(com.bubbleflow.entity.Order order) {
+        if (order == null || order.getItems() == null) {
+            return 0.0;
+        }
+        return order.getItems().stream()
+                .filter(item -> item.getService() != null && "KG".equalsIgnoreCase(item.getService().getPriceUnit()))
+                .mapToDouble(item -> item.getQuantity().doubleValue())
+                .sum();
+    }
+
     @Mapping(target = "orderId", source = "order.id")
     @Mapping(target = "orderCode", source = "order.orderCode")
+    @Mapping(target = "orderStatus", source = "order.status")
+    @Mapping(target = "orderWeight", expression = "java(getOrderWeight(entity.getOrder()))")
     @Mapping(target = "equipmentId", source = "equipment.id")
     @Mapping(target = "equipmentCode", source = "equipment.code")
     LaundryBasketResponse toResponse(LaundryBasket entity);

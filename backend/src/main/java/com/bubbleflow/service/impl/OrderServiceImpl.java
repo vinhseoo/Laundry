@@ -51,6 +51,8 @@ public class OrderServiceImpl implements OrderService {
     private final StringRedisTemplate stringRedisTemplate;
     private final SystemSettingsServiceImpl systemSettingsService;
     private final StateMachineFactory<OrderState, OrderEvent> stateMachineFactory;
+    private final com.bubbleflow.repository.CustomerRepository customerRepository;
+    private final com.bubbleflow.repository.LaundryBasketRepository laundryBasketRepository;
     private final OrderMapper orderMapper;
 
     @Override
@@ -79,7 +81,32 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderCode(generateOrderCode());
         order.setStatus("RECEIVED");
 
+        // Find or create customer by phone number
+        com.bubbleflow.entity.Customer customer = customerRepository.findByPhone(request.getCustomerPhone())
+                .orElseGet(() -> {
+                    com.bubbleflow.entity.Customer newCustomer = com.bubbleflow.entity.Customer.builder()
+                            .name(request.getCustomerName())
+                            .phone(request.getCustomerPhone())
+                            .isActive(true)
+                            .build();
+                    return customerRepository.save(newCustomer);
+                });
+        order.setCustomer(customer);
+
         BigDecimal total = calculateAndAddItems(order, request.getItems());
+        
+        // Apply VAT rate configuration
+        String vatRateStr = systemSettingsService.getStringSetting("vat_rate", "8");
+        double vatRate = 0.0;
+        try {
+            vatRate = Double.parseDouble(vatRateStr);
+        } catch (NumberFormatException e) {
+            log.warn("Invalid vat_rate configuration setting: {}", vatRateStr);
+        }
+        if (vatRate > 0) {
+            BigDecimal vatMultiplier = BigDecimal.valueOf(1 + vatRate / 100);
+            total = total.multiply(vatMultiplier);
+        }
         order.setTotalAmount(total);
 
         order = orderRepository.save(order);
@@ -185,6 +212,15 @@ public class OrderServiceImpl implements OrderService {
         }
         validateTransition(oldStatus, "COMPLETED", order.getOrderCode());
         releaseRackIfAssigned(order);
+
+        // Auto release any laundry baskets assigned to this order
+        List<com.bubbleflow.entity.LaundryBasket> assignedBaskets = laundryBasketRepository.findByOrderId(order.getId());
+        for (com.bubbleflow.entity.LaundryBasket b : assignedBaskets) {
+            b.setOrder(null);
+            b.setEquipment(null);
+            b.setStatus("IDLE");
+            laundryBasketRepository.save(b);
+        }
         
         order.setStatus("COMPLETED");
         order.setPaymentStatus("PAID");

@@ -68,6 +68,17 @@ export const StoragePage: FC = () => {
   const [deliveryForm] = Form.useForm();
   const [deliveryType, setDeliveryType] = useState('PICKUP');
 
+  const handleResetRackFilters = () => {
+    setRackSearch('');
+    setRackStatus(undefined);
+    setRackPage(0);
+  };
+
+  const handleResetOrderFilters = () => {
+    setOrderSearch('');
+    setOrderPage(0);
+  };
+
   // Queries
   const { data: racksData, isLoading: isRacksLoading } = useQuery({
     queryKey: ['storage-racks', rackSearch, rackStatus, rackPage],
@@ -371,6 +382,13 @@ export const StoragePage: FC = () => {
                       <Select.Option value="OCCUPIED">Đang có đồ (OCCUPIED)</Select.Option>
                       <Select.Option value="MAINTENANCE">Bảo trì (MAINTENANCE)</Select.Option>
                     </Select>
+                    <Button
+                      type="default"
+                      onClick={handleResetRackFilters}
+                      style={{ borderRadius: 8 }}
+                    >
+                      Đặt lại bộ lọc
+                    </Button>
                   </div>
                   {hasPermission('POST:/storage-racks') && (
                     <Button
@@ -500,7 +518,7 @@ export const StoragePage: FC = () => {
             children: (
               <div className="space-y-4">
                 {/* Search Bar */}
-                <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-xs border border-slate-100">
+                <div className="flex justify-start items-center gap-3 bg-white p-4 rounded-xl shadow-xs border border-slate-100">
                   <Input
                     placeholder="Tìm kiếm theo mã đơn, tên, số điện thoại..."
                     prefix={<SearchOutlined className="text-gray-400" />}
@@ -509,6 +527,13 @@ export const StoragePage: FC = () => {
                     style={{ width: 360, borderRadius: 8 }}
                     allowClear
                   />
+                  <Button
+                    type="default"
+                    onClick={handleResetOrderFilters}
+                    style={{ borderRadius: 8 }}
+                  >
+                    Đặt lại bộ lọc
+                  </Button>
                 </div>
 
                 {/* Table */}

@@ -9,7 +9,8 @@ import {
   Divider, 
   Modal, 
   message, 
-  Typography 
+  Typography,
+  AutoComplete 
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -21,6 +22,8 @@ import {
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { serviceService } from '@/services/serviceService';
 import { orderService } from '@/services/orderService';
+import { customerService } from '@/services/customerService';
+import { settingsService } from '@/services/settingsService';
 import { PageContainer } from '@/components/layout/PageContainer';
 import type { ServiceResponse, OrderRequest, OrderResponse } from '@/types';
 import dayjs from 'dayjs';
@@ -31,6 +34,7 @@ export const OrderIntakePage = () => {
   const [form] = Form.useForm();
   const [createdOrder, setCreatedOrder] = useState<OrderResponse | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+  const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
 
   // Fetch Services for selection
   const { data: servicesData, isLoading: isServicesLoading } = useQuery({
@@ -43,6 +47,35 @@ export const OrderIntakePage = () => {
 
   const services: ServiceResponse[] = servicesData || [];
 
+  // Fetch System Settings
+  const { data: settingsData } = useQuery({
+    queryKey: ['settings', 'all'],
+    queryFn: async () => {
+      const response = await settingsService.getAll();
+      return response.data;
+    }
+  });
+
+  const storeName = settingsData?.find(s => s.settingKey === 'store_name')?.settingValue || 'BubbleFlow Premium Laundry';
+  const storeAddress = settingsData?.find(s => s.settingKey === 'store_address')?.settingValue || '123 Đường Láng, Đống Đa, Hà Nội';
+  const storePhone = settingsData?.find(s => s.settingKey === 'store_phone')?.settingValue || '0987654321';
+  const vatRateStr = settingsData?.find(s => s.settingKey === 'vat_rate')?.settingValue || '8';
+  const vatRate = parseFloat(vatRateStr) || 0;
+
+  // Search Customer suggestion
+  const handlePhoneSearch = async (value: string) => {
+    if (value && value.length >= 3) {
+      try {
+        const response = await customerService.search(value);
+        setCustomerSuggestions(response.data || []);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      setCustomerSuggestions([]);
+    }
+  };
+
   // Create Order Mutation
   const createOrderMutation = useMutation({
     mutationFn: orderService.create,
@@ -51,6 +84,7 @@ export const OrderIntakePage = () => {
       setCreatedOrder(response.data);
       setIsReceiptOpen(true);
       form.resetFields();
+      setCustomerSuggestions([]);
     }
   });
 
@@ -63,19 +97,27 @@ export const OrderIntakePage = () => {
     }
   };
 
-  const calculateTotal = () => {
-    let total = 0;
+  const calculateSubtotal = () => {
+    let subtotal = 0;
     if (itemsList && Array.isArray(itemsList)) {
       itemsList.forEach((item) => {
         if (item && item.serviceId && item.quantity) {
           const service = services.find(s => s.id === item.serviceId);
           if (service) {
-            total += service.price * item.quantity;
+            subtotal += service.price * item.quantity;
           }
         }
       });
     }
-    return total;
+    return subtotal;
+  };
+
+  const calculateVat = () => {
+    return calculateSubtotal() * (vatRate / 100);
+  };
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateVat();
   };
 
   const handleCreateSubmit = async (values: any) => {
@@ -149,6 +191,27 @@ export const OrderIntakePage = () => {
               className="shadow-sm rounded-2xl border border-slate-100 bg-white"
             >
               <Form.Item
+                name="customerPhone"
+                label="Số điện thoại"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập số điện thoại' },
+                  { pattern: /^[0-9+()#&.\s-]{9,15}$/, message: 'Số điện thoại không hợp lệ' }
+                ]}
+              >
+                <AutoComplete
+                  options={customerSuggestions.map(c => ({ value: c.phone, label: `${c.phone} - ${c.name}`, customer: c }))}
+                  onSearch={handlePhoneSearch}
+                  onSelect={(_, option) => {
+                    form.setFieldsValue({
+                      customerName: option.customer.name
+                    });
+                  }}
+                  placeholder="Nhập hoặc tìm số điện thoại..."
+                  style={{ borderRadius: 8 }}
+                />
+              </Form.Item>
+
+              <Form.Item
                 name="customerName"
                 label="Tên khách hàng"
                 rules={[
@@ -157,17 +220,6 @@ export const OrderIntakePage = () => {
                 ]}
               >
                 <Input placeholder="Nguyễn Văn A" style={{ borderRadius: 8 }} />
-              </Form.Item>
-
-              <Form.Item
-                name="customerPhone"
-                label="Số điện thoại"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập số điện thoại' },
-                  { pattern: /^[0-9+()#&.\s-]{9,15}$/, message: 'Số điện thoại không hợp lệ' }
-                ]}
-              >
-                <Input placeholder="0987654321" style={{ borderRadius: 8 }} />
               </Form.Item>
 
               <Form.Item
@@ -183,8 +235,21 @@ export const OrderIntakePage = () => {
               className="shadow-md rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white border-0"
               bodyStyle={{ padding: '24px' }}
             >
+              <div className="space-y-2 mb-4 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Tạm tính:</span>
+                  <span className="font-mono">{new Intl.NumberFormat('vi-VN').format(calculateSubtotal())}đ</span>
+                </div>
+                {vatRate > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Thuế VAT ({vatRate}%):</span>
+                    <span className="font-mono">{new Intl.NumberFormat('vi-VN').format(calculateVat())}đ</span>
+                  </div>
+                )}
+              </div>
+              <Divider className="border-slate-800 my-2" />
               <Text className="text-slate-300 font-medium block text-xs tracking-wider uppercase mb-1">
-                Tạm tính thanh toán
+                Tổng thanh toán (gồm VAT)
               </Text>
               <Title level={2} className="text-white !m-0 !font-extrabold flex items-baseline gap-1">
                 <span className="text-xl">VND</span>
@@ -369,13 +434,13 @@ export const OrderIntakePage = () => {
             <div className="space-y-4">
               <div className="text-center">
                 <Title level={4} className="!m-0 !font-extrabold tracking-wider" style={{ fontFamily: 'monospace' }}>
-                  🧼 BUBBLEFLOW LAUNDRY
+                  🧼 {storeName.toUpperCase()}
                 </Title>
                 <Text className="text-xs text-slate-500 block mt-1" style={{ fontFamily: 'monospace' }}>
-                  Đường Tự Động, Quận Giặt Sấy, TP.HCM
+                  {storeAddress}
                 </Text>
                 <Text className="text-xs text-slate-500 block" style={{ fontFamily: 'monospace' }}>
-                  Hotline: 0999.888.777
+                  Hotline: {storePhone}
                 </Text>
               </div>
 
@@ -428,13 +493,32 @@ export const OrderIntakePage = () => {
 
               <div style={{ borderTop: '1px dashed #cbd5e1', margin: '12px 0' }} />
 
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between font-bold">
-                  <span>TỔNG THANH TOÁN:</span>
-                  <span className="text-indigo-600 font-mono text-base">
-                    {new Intl.NumberFormat('vi-VN').format(createdOrder.totalAmount)}đ
-                  </span>
-                </div>
+              <div className="text-xs space-y-1" style={{ fontFamily: 'monospace' }}>
+                {(() => {
+                  const subtotal = createdOrder.items.reduce((sum, item) => sum + item.subtotal, 0);
+                  const vatAmount = createdOrder.totalAmount - subtotal;
+                  return (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Tạm tính:</span>
+                        <span>{new Intl.NumberFormat('vi-VN').format(subtotal)}đ</span>
+                      </div>
+                      {vatAmount > 0 && (
+                        <div className="flex justify-between">
+                          <span>Thuế VAT ({vatRate}%):</span>
+                          <span>{new Intl.NumberFormat('vi-VN').format(vatAmount)}đ</span>
+                        </div>
+                      )}
+                      <div style={{ borderTop: '1px dashed #cbd5e1', margin: '6px 0' }} />
+                      <div className="flex justify-between font-bold text-sm">
+                        <span>TỔNG CỘNG:</span>
+                        <span className="text-indigo-600 font-mono text-base">
+                          {new Intl.NumberFormat('vi-VN').format(createdOrder.totalAmount)}đ
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {createdOrder.notes && (

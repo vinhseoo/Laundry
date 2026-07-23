@@ -92,6 +92,12 @@ export const OrderListPage = () => {
   const [selectedBasketForDispatch, setSelectedBasketForDispatch] = useState<LaundryBasketResponse | null>(null);
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<number | null>(null);
 
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatusFilter(undefined);
+    setPage(0);
+  };
+
   // Data Queries
   const { data: ordersData, isLoading: isOrdersLoading, refetch: refetchOrders } = useQuery({
     queryKey: ['orders', search, statusFilter, page],
@@ -290,49 +296,57 @@ export const OrderListPage = () => {
       title: 'Giỏ đồ gán',
       key: 'basket',
       render: (_, record) => {
-        // Find if any basket is assigned to this order
         const assignedBaskets = baskets.filter(b => b.orderId === record.id);
         
         if (assignedBaskets.length > 0) {
           return (
             <Space direction="vertical" size={2}>
-              {assignedBaskets.map(b => (
-                <div key={b.id} className="flex items-center gap-1.5">
-                  <Tag color="geekblue" style={{ borderRadius: 4, fontWeight: 600 }}>🧺 {b.basketCode}</Tag>
-                  {b.equipmentId ? (
-                    <Tag color="purple" style={{ borderRadius: 4, fontSize: '10px' }}>💻 {b.equipmentCode}</Tag>
-                  ) : (
-                    hasPermission('PUT:/api/baskets/{id}/assign-equipment/{equipmentId}') && (
-                      <Tooltip title="Điều phối vào máy giặt/sấy">
-                        <Button 
-                          type="text" 
-                          size="small"
-                          icon={<ArrowRightOutlined className="text-indigo-500" />} 
-                          onClick={() => {
-                            setSelectedBasketForDispatch(b);
-                            setIsDispatchOpen(true);
-                          }}
-                        />
-                      </Tooltip>
-                    )
-                  )}
-                  <Button 
-                    type="text" 
-                    danger 
-                    size="small" 
-                    className="text-slate-400 hover:text-red-500 font-bold"
-                    onClick={() => assignBasketMutation.mutate({ basketId: b.id, orderId: null })}
-                  >
-                    ×
-                  </Button>
-                </div>
-              ))}
+              {assignedBaskets.map(b => {
+                const canDispatch = ['RECEIVED', 'SORTING', 'WASHING', 'DRYING'].includes(record.status);
+                const canUnassign = !['AWAITING_DELIVERY', 'COMPLETED'].includes(record.status);
+                
+                return (
+                  <div key={b.id} className="flex items-center gap-1.5">
+                    <Tag color="geekblue" style={{ borderRadius: 4, fontWeight: 600 }}>🧺 {b.basketCode}</Tag>
+                    {b.equipmentId ? (
+                      <Tag color="purple" style={{ borderRadius: 4, fontSize: '10px' }}>💻 {b.equipmentCode}</Tag>
+                    ) : (
+                      canDispatch && hasPermission('PUT:/api/baskets/{id}/assign-equipment/{equipmentId}') && (
+                        <Tooltip title="Điều phối vào máy giặt/sấy">
+                          <Button 
+                            type="text" 
+                            size="small"
+                            icon={<ArrowRightOutlined className="text-indigo-500" />} 
+                            onClick={() => {
+                              setSelectedBasketForDispatch(b);
+                              setIsDispatchOpen(true);
+                            }}
+                          />
+                        </Tooltip>
+                      )
+                    )}
+                    {canUnassign && (
+                      <Button 
+                        type="text" 
+                        danger 
+                        size="small" 
+                        className="text-slate-400 hover:text-red-500 font-bold"
+                        onClick={() => assignBasketMutation.mutate({ basketId: b.id, orderId: null })}
+                      >
+                        ×
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
             </Space>
           );
         }
 
+        const canAssignBasket = !['AWAITING_DELIVERY', 'COMPLETED'].includes(record.status);
+
         return (
-          hasPermission('PUT:/api/baskets/{id}/assign-order') ? (
+          canAssignBasket && hasPermission('PUT:/api/baskets/{id}/assign-order') ? (
             <Button 
               type="dashed" 
               size="small" 
@@ -422,6 +436,7 @@ export const OrderListPage = () => {
                   <Select
                     placeholder="Lọc trạng thái..."
                     allowClear
+                    value={statusFilter}
                     onChange={setStatusFilter}
                     style={{ width: 180 }}
                   >
@@ -435,9 +450,16 @@ export const OrderListPage = () => {
                   <Button 
                     type="default" 
                     icon={<SyncOutlined />} 
-                    onClick={() => { refetchOrders(); refetchBaskets(); }} 
+                    onClick={() => { refetchOrders(); refetchBaskets(); refetchEquipment(); }} 
                     style={{ borderRadius: 8 }}
                   />
+                  <Button
+                    type="default"
+                    onClick={handleResetFilters}
+                    style={{ borderRadius: 8 }}
+                  >
+                    Đặt lại bộ lọc
+                  </Button>
                 </div>
 
                 <Table 
@@ -475,9 +497,12 @@ export const OrderListPage = () => {
                 ) : (
                   <Row gutter={[20, 20]}>
                     {equipments.filter(e => e.isActive).map((eq) => {
-                      // Find if any basket is loaded into this machine
-                      const loadedBasket = baskets.find(b => b.equipmentId === eq.id);
+                      // Find if any baskets are loaded into this machine
+                      const loadedBaskets = baskets.filter(b => b.equipmentId === eq.id);
                       const isRunning = eq.status === 'RUNNING';
+                      const currentWeight = loadedBaskets.reduce((sum, b) => sum + (b.orderWeight || 0), 0);
+                      const capacity = eq.capacity || 10;
+                      const weightPercent = Math.min(Math.round((currentWeight / capacity) * 100), 100);
 
                       return (
                         <Col xs={24} sm={12} md={8} lg={6} key={eq.id}>
@@ -503,18 +528,25 @@ export const OrderListPage = () => {
                             </div>
 
                             <div className="py-3 border-t border-slate-100 my-3">
-                              {isRunning && loadedBasket ? (
-                                <div className="space-y-2">
-                                  <div className="flex justify-between items-center text-xs">
-                                    <span className="font-semibold text-slate-500">Giỏ đang giặt:</span>
-                                    <Tag color="geekblue" className="m-0 font-bold">🧺 {loadedBasket.basketCode}</Tag>
+                              {isRunning && loadedBaskets.length > 0 ? (
+                                <div className="space-y-3">
+                                  <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
+                                    {loadedBaskets.map((b) => (
+                                      <div key={b.id} className="flex justify-between items-center text-xs bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                        <div>
+                                          <Tag color="geekblue" className="m-0 font-bold text-[10px]">🧺 {b.basketCode}</Tag>
+                                          <span className="font-semibold text-slate-500 ml-1.5 font-mono text-[10px]">{b.orderCode}</span>
+                                        </div>
+                                        <span className="font-bold text-slate-600 text-[10px]">{b.orderWeight || 0} kg</span>
+                                      </div>
+                                    ))}
                                   </div>
-                                  <div className="flex justify-between items-center text-xs">
-                                    <span className="font-semibold text-slate-500">Mã đơn hàng:</span>
-                                    <span className="font-bold text-indigo-600 font-mono">{loadedBasket.orderCode}</span>
-                                  </div>
-                                  <div className="pt-1">
-                                    <Progress percent={45} status="active" strokeColor={{ '0%': '#6366f1', '100%': '#a855f7' }} showInfo={false} size="small" />
+                                  <div className="pt-1 text-xs">
+                                    <div className="flex justify-between mb-1">
+                                      <span className="text-slate-400 font-semibold">Tải trọng:</span>
+                                      <span className="font-bold text-indigo-600 font-mono">{currentWeight} / {capacity} kg</span>
+                                    </div>
+                                    <Progress percent={weightPercent} status="active" strokeColor={{ '0%': '#6366f1', '100%': '#a855f7' }} showInfo={false} size="small" className="m-0" />
                                   </div>
                                 </div>
                               ) : (
@@ -527,13 +559,13 @@ export const OrderListPage = () => {
                             <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
                               <span className="text-xs">{getMachineStatusBadge(eq.status)}</span>
                               
-                              {isRunning && loadedBasket && hasPermission('PUT:/api/baskets/{id}/release') && (
+                              {isRunning && loadedBaskets.length > 0 && hasPermission('PUT:/api/baskets/{id}/release') && (
                                 <Button
                                   type="primary"
                                   danger
                                   size="small"
                                   icon={<PoweroffOutlined />}
-                                  onClick={() => releaseMutation.mutate(loadedBasket.id)}
+                                  onClick={() => releaseMutation.mutate(loadedBaskets[0].id)}
                                   style={{ borderRadius: 6, fontSize: '11px' }}
                                 >
                                   Hoàn thành
@@ -640,20 +672,36 @@ export const OrderListPage = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 block">Chọn thiết bị máy rảnh (IDLE):</label>
+              <label className="text-xs font-bold text-slate-500 block">Chọn thiết bị máy giặt hoặc sấy phù hợp:</label>
               <Select
-                placeholder="Chọn máy giặt hoặc máy sấy..."
+                placeholder="Chọn máy..."
                 style={{ width: '100%', borderRadius: 8 }}
                 value={selectedEquipmentId || undefined}
                 onChange={setSelectedEquipmentId}
               >
-                {equipments
-                  .filter(e => e.isActive && e.status === 'IDLE')
-                  .map(e => (
-                    <Select.Option key={e.id} value={e.id}>
-                      {e.type === 'WASHING_MACHINE' ? '🧼 MÁY GIẶT' : '💨 MÁY SẤY'} — {e.name} ({e.capacity}kg - {e.code})
-                    </Select.Option>
-                  ))}
+                {(() => {
+                  const isDryingOrder = selectedBasketForDispatch.orderStatus === 'DRYING';
+                  const targetType = isDryingOrder ? 'DRYER' : 'WASHING_MACHINE';
+                  
+                  const getEquipmentCurrentWeight = (eqId: number) => {
+                    return baskets
+                      .filter(b => b.equipmentId === eqId)
+                      .reduce((sum, b) => sum + (b.orderWeight || 0), 0);
+                  };
+
+                  return equipments
+                    .filter(e => e.isActive && (e.status === 'IDLE' || e.status === 'RUNNING') && e.type === targetType)
+                    .map(e => {
+                      const curWeight = getEquipmentCurrentWeight(e.id);
+                      const basketWeight = selectedBasketForDispatch.orderWeight || 0;
+                      const isOverCapacity = curWeight + basketWeight > e.capacity;
+                      return (
+                        <Select.Option key={e.id} value={e.id} disabled={isOverCapacity}>
+                          {e.type === 'WASHING_MACHINE' ? '🧼 MÁY GIẶT' : '💨 MÁY SẤY'} — {e.name} ({curWeight}/{e.capacity}kg - {e.code}) {isOverCapacity ? '(Quá công suất)' : ''}
+                        </Select.Option>
+                      );
+                    });
+                })()}
               </Select>
             </div>
           </div>

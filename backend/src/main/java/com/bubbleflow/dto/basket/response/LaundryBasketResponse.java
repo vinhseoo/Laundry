@@ -13,6 +13,8 @@ public class LaundryBasketResponse {
     private String name;
     private Long orderId;
     private String orderCode;
+    private String orderStatus;
+    private Double orderWeight;
     private Long equipmentId;
     private String equipmentCode;
     private String status;

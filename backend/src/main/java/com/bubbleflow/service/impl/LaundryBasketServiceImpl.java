@@ -33,6 +33,8 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
     private final OrderRepository orderRepository;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentUsageLogRepository equipmentUsageLogRepository;
+    private final com.bubbleflow.repository.OrderStateLogRepository orderStateLogRepository;
+    private final com.bubbleflow.service.NotificationService notificationService;
     private final LaundryBasketMapper basketMapper;
 
     @Override
@@ -109,6 +111,16 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
         return basketMapper.toResponse(basket);
     }
 
+    private double getOrderWeight(Order order) {
+        if (order == null || order.getItems() == null) {
+            return 0.0;
+        }
+        return order.getItems().stream()
+                .filter(item -> item.getService() != null && "KG".equalsIgnoreCase(item.getService().getPriceUnit()))
+                .mapToDouble(item -> item.getQuantity().doubleValue())
+                .sum();
+    }
+
     @Override
     @Transactional
     public LaundryBasketResponse assignToEquipment(Long basketId, Long equipmentId) {
@@ -122,8 +134,57 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment", "id", equipmentId));
 
-        if (!equipment.getIsActive() || !"IDLE".equals(equipment.getStatus())) {
-            throw new BusinessException("Thiết bị " + equipment.getName() + " không sẵn sàng hoặc đang bận.");
+        if (!equipment.getIsActive()) {
+            throw new BusinessException("Thiết bị " + equipment.getName() + " không hoạt động.");
+        }
+
+        if ("MAINTENANCE".equals(equipment.getStatus()) || "OUT_OF_SERVICE".equals(equipment.getStatus())) {
+            throw new BusinessException("Thiết bị " + equipment.getName() + " đang bảo trì hoặc hỏng.");
+        }
+
+        // Limit checking capacity if it is RUNNING or IDLE
+        List<LaundryBasket> basketsInEquipment = basketRepository.findByEquipmentId(equipmentId);
+        double currentWeight = basketsInEquipment.stream()
+                .mapToDouble(b -> getOrderWeight(b.getOrder()))
+                .sum();
+        double newBasketWeight = getOrderWeight(basket.getOrder());
+
+        if (currentWeight + newBasketWeight > equipment.getCapacity()) {
+            throw new BusinessException(String.format(
+                    "Không thể gom thêm giỏ đồ này. Tổng khối lượng (%s kg) vượt quá công suất máy (%s kg).",
+                    currentWeight + newBasketWeight, equipment.getCapacity()
+            ));
+        }
+
+        // Validate state transitions & check type matching
+        Order order = basket.getOrder();
+        String oldStatus = order.getStatus();
+        String newStatus = null;
+
+        if ("WASHING_MACHINE".equals(equipment.getType())) {
+            if ("DRYING".equals(oldStatus) || "AWAITING_DELIVERY".equals(oldStatus) || "COMPLETED".equals(oldStatus)) {
+                throw new BusinessException("Đơn hàng này không cần giặt nữa.");
+            }
+            newStatus = "WASHING";
+        } else if ("DRYER".equals(equipment.getType())) {
+            if ("WASHING".equals(oldStatus) || "AWAITING_DELIVERY".equals(oldStatus) || "COMPLETED".equals(oldStatus)) {
+                throw new BusinessException("Đơn hàng này cần giặt xong trước khi sấy, hoặc đã hoàn thành.");
+            }
+            newStatus = "DRYING";
+        }
+
+        if (newStatus != null && !oldStatus.equals(newStatus)) {
+            order.setStatus(newStatus);
+            orderRepository.save(order);
+
+            com.bubbleflow.entity.OrderStateLog stateLog = com.bubbleflow.entity.OrderStateLog.builder()
+                    .order(order)
+                    .fromState(oldStatus)
+                    .toState(newStatus)
+                    .changedBy("system")
+                    .changedAt(java.time.LocalDateTime.now())
+                    .build();
+            orderStateLogRepository.save(stateLog);
         }
 
         equipment.setStatus("RUNNING");
@@ -131,15 +192,6 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
 
         basket.setEquipment(equipment);
         basket = basketRepository.save(basket);
-
-        // Automate order status transition
-        Order order = basket.getOrder();
-        if ("WASHING_MACHINE".equals(equipment.getType())) {
-            order.setStatus("WASHING");
-        } else if ("DRYER".equals(equipment.getType())) {
-            order.setStatus("DRYING");
-        }
-        orderRepository.save(order);
 
         // Create equipment usage log
         EquipmentUsageLog usageLog = EquipmentUsageLog.builder()
@@ -164,22 +216,65 @@ public class LaundryBasketServiceImpl implements LaundryBasketService {
         }
 
         Equipment equipment = basket.getEquipment();
+
+        // Find all baskets currently inside this equipment
+        List<LaundryBasket> basketsInEquipment = basketRepository.findByEquipmentId(equipment.getId());
+
+        for (LaundryBasket b : basketsInEquipment) {
+            b.setEquipment(null);
+            basketRepository.save(b);
+
+            Order order = b.getOrder();
+            if (order != null) {
+                String oldStatus = order.getStatus();
+                String newStatus = null;
+
+                if ("WASHING".equals(oldStatus) && "WASHING_MACHINE".equals(equipment.getType())) {
+                    newStatus = "DRYING";
+                } else if ("DRYING".equals(oldStatus) && "DRYER".equals(equipment.getType())) {
+                    newStatus = "AWAITING_DELIVERY";
+                }
+
+                if (newStatus != null) {
+                    order.setStatus(newStatus);
+                    orderRepository.save(order);
+
+                    com.bubbleflow.entity.OrderStateLog stateLog = com.bubbleflow.entity.OrderStateLog.builder()
+                            .order(order)
+                            .fromState(oldStatus)
+                            .toState(newStatus)
+                            .changedBy("system")
+                            .changedAt(java.time.LocalDateTime.now())
+                            .build();
+                    orderStateLogRepository.save(stateLog);
+
+                    // Create notification
+                    String typeDesc = "WASHING_MACHINE".equals(equipment.getType()) ? "giặt" : "sấy";
+                    String nextDesc = "DRYING".equals(newStatus) ? "chờ sấy" : "chờ trả đồ";
+                    notificationService.createNotification(
+                            "Hoàn thành " + typeDesc,
+                            String.format("Đơn hàng %s đã %s xong và chuyển sang trạng thái %s.", 
+                                    order.getOrderCode(), typeDesc, nextDesc),
+                            "MACHINE_COMPLETED",
+                            null
+                    );
+                }
+            }
+        }
+
         equipment.setStatus("IDLE");
         equipmentRepository.save(equipment);
 
-        basket.setEquipment(null);
-        basket = basketRepository.save(basket);
+        // End equipment usage log for all sessions on this equipment
+        List<EquipmentUsageLog> activeLogs = equipmentUsageLogRepository.findByEquipmentIdAndEndTimeIsNull(equipment.getId());
+        for (EquipmentUsageLog logEntry : activeLogs) {
+            logEntry.setEndTime(java.time.LocalDateTime.now());
+            long duration = java.time.Duration.between(logEntry.getStartTime(), logEntry.getEndTime()).toMinutes();
+            logEntry.setDurationMinutes(duration);
+            equipmentUsageLogRepository.save(logEntry);
+        }
 
-        // End equipment usage log
-        equipmentUsageLogRepository.findFirstByEquipmentIdAndEndTimeIsNullOrderByStartTimeDesc(equipment.getId())
-                .ifPresent(logEntry -> {
-                    logEntry.setEndTime(java.time.LocalDateTime.now());
-                    long duration = java.time.Duration.between(logEntry.getStartTime(), logEntry.getEndTime()).toMinutes();
-                    logEntry.setDurationMinutes(duration);
-                    equipmentUsageLogRepository.save(logEntry);
-                });
-
-        log.info("Released basket {} from equipment {}", basket.getBasketCode(), equipment.getCode());
+        log.info("Released all baskets ({}) from equipment {}", basketsInEquipment.size(), equipment.getCode());
         return basketMapper.toResponse(basket);
     }
 

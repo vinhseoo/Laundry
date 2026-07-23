@@ -232,6 +232,8 @@ export interface LaundryBasketResponse {
   name?: string;
   orderId?: number;
   orderCode?: string;
+  orderStatus?: string;
+  orderWeight?: number;
   equipmentId?: number;
   equipmentCode?: string;
   status: string; // IDLE, USING
@@ -324,4 +326,40 @@ export interface SystemSettingResponse {
 export interface SystemSettingRequest {
   settingKey: string;
   settingValue: string;
+}
+
+// ===== Customer Types =====
+
+export interface CustomerStatsResponse {
+  id: number;
+  name: string;
+  phone: string;
+  isActive: boolean;
+  totalOrders: number;
+  totalSpent: number;
+}
+
+export interface CustomerResponse {
+  id: number;
+  name: string;
+  phone: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CustomerRequest {
+  name: string;
+  phone: string;
+}
+
+// ===== Notification Types =====
+
+export interface NotificationResponse {
+  id: number;
+  title: string;
+  content: string;
+  type: string; // SLA_WARNING, MACHINE_COMPLETED, SYSTEM
+  isRead: boolean;
+  createdAt: string;
 }

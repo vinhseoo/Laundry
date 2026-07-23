@@ -34,6 +34,10 @@ public class Order extends BaseEntity {
     private String status = "RECEIVED"; // RECEIVED, SORTING, WASHING, DRYING, AWAITING_DELIVERY, COMPLETED
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storage_rack_id")
     private StorageRack storageRack;
 

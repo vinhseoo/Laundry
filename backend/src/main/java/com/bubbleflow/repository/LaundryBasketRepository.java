@@ -19,6 +19,10 @@ public interface LaundryBasketRepository extends JpaRepository<LaundryBasket, Lo
 
     List<LaundryBasket> findByIsActiveTrue();
 
+    List<LaundryBasket> findByEquipmentId(Long equipmentId);
+
+    List<LaundryBasket> findByOrderId(Long orderId);
+
     @Query("SELECT b FROM LaundryBasket b WHERE " +
            "(:search IS NULL OR :search = '' OR " +
            " LOWER(b.basketCode) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

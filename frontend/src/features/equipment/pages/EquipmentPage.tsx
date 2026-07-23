@@ -47,6 +47,12 @@ export const EquipmentPage = () => {
   const [createForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
+  const handleResetFilters = () => {
+    setSearch('');
+    setTypeFilter(undefined);
+    setStatusFilter(undefined);
+  };
+
   // Fetch Equipment
   const { data: equipmentData, isLoading: isEquipmentLoading, refetch: refetchEquipment } = useQuery({
     queryKey: ['equipment', search, typeFilter, statusFilter],
@@ -331,6 +337,7 @@ export const EquipmentPage = () => {
                   <Select 
                     placeholder="Loại máy" 
                     allowClear 
+                    value={typeFilter}
                     onChange={setTypeFilter} 
                     style={{ width: 150 }}
                   >
@@ -341,6 +348,7 @@ export const EquipmentPage = () => {
                   <Select 
                     placeholder="Trạng thái" 
                     allowClear 
+                    value={statusFilter}
                     onChange={setStatusFilter} 
                     style={{ width: 170 }}
                   >
@@ -358,6 +366,14 @@ export const EquipmentPage = () => {
                     style={{ width: 220 }}
                     allowClear
                   />
+                  
+                  <Button
+                    type="default"
+                    onClick={handleResetFilters}
+                    style={{ borderRadius: 8 }}
+                  >
+                    Đặt lại bộ lọc
+                  </Button>
                 </div>
 
                 {isEquipmentLoading ? (
@@ -461,12 +477,20 @@ export const EquipmentPage = () => {
                     <Select 
                       placeholder="Chọn loại máy..." 
                       allowClear 
+                      value={typeFilter}
                       onChange={setTypeFilter}
                       style={{ width: 160 }}
                     >
                       <Select.Option value="WASHING_MACHINE">Máy Giặt</Select.Option>
                       <Select.Option value="DRYER">Máy Sấy</Select.Option>
                     </Select>
+                    <Button
+                      type="default"
+                      onClick={handleResetFilters}
+                      style={{ borderRadius: 8 }}
+                    >
+                      Đặt lại bộ lọc
+                    </Button>
                   </Space>
                   {hasPermission('POST:/api/equipment') && (
                     <Button 

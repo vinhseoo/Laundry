@@ -1,9 +1,10 @@
-import { ConfigProvider, App as AntApp } from 'antd';
+import { ConfigProvider, App as AntApp, theme } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoutes } from './routes';
 import { AntdGlobalHelper } from './utils/antd';
+import { useThemeStore } from './stores/themeStore';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,9 +82,28 @@ const themeConfig = {
 };
 
 function App() {
+  const { isDarkMode } = useThemeStore();
+
+  const dynamicTheme = {
+    ...themeConfig,
+    algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+    components: {
+      ...themeConfig.components,
+      Layout: {
+        ...themeConfig.components.Layout,
+        bodyBg: isDarkMode ? '#0f172a' : '#f8fafc',
+        headerBg: isDarkMode ? '#1e293b' : '#ffffff',
+      },
+      Table: {
+        headerBg: isDarkMode ? '#1e293b' : '#f8fafc',
+        borderColor: isDarkMode ? '#334155' : '#f1f5f9',
+      }
+    },
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider theme={themeConfig} locale={viVN}>
+      <ConfigProvider theme={dynamicTheme} locale={viVN}>
         <AntApp>
           <AntdGlobalHelper />
           <BrowserRouter>

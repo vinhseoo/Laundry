@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.EntityGraph;
 import java.util.Optional;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     boolean existsByOrderCode(String orderCode);
 
+    @EntityGraph(attributePaths = {"items", "customer", "storageRack"})
     @Query("SELECT o FROM Order o WHERE " +
            "(:search IS NULL OR :search = '' OR " +
            " LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -25,6 +27,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findWithFilters(@Param("search") String search,
                                 @Param("status") String status,
                                 Pageable pageable);
+
+    @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId AND o.isActive = true ORDER BY o.createdAt DESC")
+    List<Order> findByCustomerId(@Param("customerId") Long customerId);
 
     @Query("SELECT o FROM Order o WHERE o.storageRack.id = :rackId AND o.isActive = true AND o.status = 'AWAITING_DELIVERY'")
     Optional<Order> findActiveOrderByStorageRackId(@Param("rackId") Long rackId);

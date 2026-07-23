@@ -1,7 +1,21 @@
 import axios from 'axios';
 import { message, modal } from '@/utils/antd';
+import { useAuthStore } from '@/stores/authStore';
 
 let isForbiddenModalOpen = false;
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
@@ -14,7 +28,6 @@ export const apiClient = axios.create({
 // Request interceptor — attach JWT token
 apiClient.interceptors.request.use(
   (config) => {
-    // Dynamic import to avoid circular dependency
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -28,22 +41,73 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => {
     // Unwrap: backend returns { success, message, data, ... }
-    // We return the whole ApiResponse so hooks can access .data, .message, etc.
     return response.data;
   },
   async (error) => {
+    const originalRequest = error.config;
     const status = error.response?.status;
     const errorMessage = error.response?.data?.message || 'Đã xảy ra lỗi';
 
+    // Prevent loop if the request URL is auth endpoints
+    const isAuthRequest = originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/refresh');
+
+    if (status === 401 && !originalRequest._retry && !isAuthRequest) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const res = await axios.post(`${apiClient.defaults.baseURL}/auth/refresh`, { refreshToken });
+          const apiResponse = res.data;
+
+          if (apiResponse && apiResponse.success && apiResponse.data) {
+            const { accessToken, refreshToken: newRefreshToken, user } = apiResponse.data;
+
+            // Sync to Zustand Auth Store (which also updates localStorage)
+            useAuthStore.getState().setAuth(accessToken, newRefreshToken, user);
+
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+            processQueue(null, accessToken);
+            isRefreshing = false;
+
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          isRefreshing = false;
+
+          useAuthStore.getState().logout();
+          if (window.location.pathname !== '/login') {
+            message.error('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.');
+            window.location.href = '/login';
+          }
+          return Promise.reject(refreshError);
+        }
+      }
+    }
+
     switch (status) {
       case 401:
-        // Token expired or invalid
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        if (window.location.pathname !== '/login') {
-          message.error('Phiên đăng nhập đã hết hạn');
-          window.location.href = '/login';
+        if (!originalRequest._retry) {
+          useAuthStore.getState().logout();
+          if (window.location.pathname !== '/login') {
+            message.error('Phiên đăng nhập đã hết hạn');
+            window.location.href = '/login';
+          }
         }
         break;
       case 403:
@@ -63,11 +127,7 @@ apiClient.interceptors.response.use(
         }
         break;
       case 400:
-        message.error(errorMessage);
-        break;
       case 409:
-        message.error(errorMessage);
-        break;
       case 422:
         message.error(errorMessage);
         break;

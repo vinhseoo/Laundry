@@ -13,6 +13,7 @@ const EquipmentPage = lazy(() => import('./features/equipment/pages/EquipmentPag
 const OrderIntakePage = lazy(() => import('./features/orders/pages/OrderIntakePage'));
 const OrderListPage = lazy(() => import('./features/orders/pages/OrderListPage'));
 const StoragePage = lazy(() => import('./features/orders/pages/StoragePage'));
+const CustomerListPage = lazy(() => import('./features/customers/pages/CustomerListPage'));
 const SettingsPage = lazy(() => import('./features/settings/pages/SettingsPage'));
 
 const LoadingFallback = () => (
@@ -38,6 +39,7 @@ export const AppRoutes = () => {
           <Route path="/orders/new" element={<OrderIntakePage />} />
           <Route path="/orders" element={<OrderListPage />} />
           <Route path="/storage" element={<StoragePage />} />
+          <Route path="/customers" element={<CustomerListPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           {/* Default redirect inside AppLayout */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

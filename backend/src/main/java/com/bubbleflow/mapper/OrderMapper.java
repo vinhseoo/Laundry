@@ -15,6 +15,7 @@ public interface OrderMapper {
     @Mapping(target = "items", source = "items")
     @Mapping(target = "storageRackId", source = "storageRack.id")
     @Mapping(target = "storageRackName", source = "storageRack.name")
+    @Mapping(target = "customerId", source = "customer.id")
     OrderResponse toResponse(Order entity);
 
     List<OrderResponse> toResponseList(List<Order> entities);

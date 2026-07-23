@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface EquipmentUsageLogRepository extends JpaRepository<EquipmentUsageLog, Long> {
     Optional<EquipmentUsageLog> findFirstByEquipmentIdAndEndTimeIsNullOrderByStartTimeDesc(Long equipmentId);
 
+    List<EquipmentUsageLog> findByEquipmentIdAndEndTimeIsNull(Long equipmentId);
+
     @Query("SELECT COUNT(l) FROM EquipmentUsageLog l WHERE l.equipment.id = :equipmentId AND l.isActive = true")
     long countCyclesByEquipmentId(@Param("equipmentId") Long equipmentId);
 
