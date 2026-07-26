@@ -132,7 +132,7 @@ export const ServicesPage = () => {
       title: 'Tên dịch vụ',
       dataIndex: 'name',
       key: 'name',
-      render: (name: string) => <span className="font-semibold text-gray-800">{name}</span>,
+      render: (name: string) => <span className="font-semibold text-slate-800 dark:text-slate-200">{name}</span>,
     },
     {
       title: 'Mô tả',
@@ -146,7 +146,7 @@ export const ServicesPage = () => {
       dataIndex: 'price',
       key: 'price',
       render: (price: number) => (
-        <span className="font-bold text-slate-800">
+        <span className="font-bold text-slate-800 dark:text-slate-200">
           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
         </span>
       ),
@@ -222,7 +222,7 @@ export const ServicesPage = () => {
   return (
     <PageContainer title="Bảng Giá Dịch Vụ">
       <div className="space-y-4">
-        <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-xs border border-slate-100">
+        <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-xs border border-slate-100 dark:border-slate-800 transition-colors">
           <Input
             placeholder="Tìm kiếm dịch vụ..."
             prefix={<SearchOutlined className="text-gray-400" />}
@@ -254,7 +254,7 @@ export const ServicesPage = () => {
             current: (servicesData?.page || 0) + 1,
             showSizeChanger: false,
           }}
-          className="shadow-xs rounded-xl overflow-hidden border border-slate-100 bg-white"
+          className="shadow-xs rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
         />
 
         {/* Add Service Modal */}

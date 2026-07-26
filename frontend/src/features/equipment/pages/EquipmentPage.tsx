@@ -215,7 +215,7 @@ export const EquipmentPage = () => {
       title: 'Tên máy',
       dataIndex: 'name',
       key: 'name',
-      render: (name: string) => <span className="font-semibold text-gray-800">{name}</span>,
+      render: (name: string) => <span className="font-semibold text-slate-800 dark:text-slate-200">{name}</span>,
     },
     {
       title: 'Loại máy',
@@ -387,7 +387,7 @@ export const EquipmentPage = () => {
                       return (
                         <Col xs={24} sm={12} md={8} lg={6} key={eq.id}>
                           <Card 
-                            className={`border transition-all duration-300 rounded-2xl bg-white overflow-hidden ${cfg.glowClass}`}
+                            className={`border transition-all duration-300 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden ${cfg.glowClass}`}
                             bodyStyle={{ padding: '20px' }}
                           >
                             <div className="flex justify-between items-start mb-4">
@@ -395,7 +395,7 @@ export const EquipmentPage = () => {
                                 <span className="text-xs font-bold text-slate-400 tracking-wider block mb-1 uppercase">
                                   {eq.type === 'WASHING_MACHINE' ? '🧼 MÁY GIẶT' : '💨 MÁY SẤY'}
                                 </span>
-                                <h3 className="text-lg font-bold text-slate-800 leading-tight">
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 leading-tight">
                                   {eq.name}
                                 </h3>
                                 <span className="text-xs font-semibold text-indigo-500 mt-1 inline-block">
@@ -407,10 +407,10 @@ export const EquipmentPage = () => {
                               </span>
                             </div>
 
-                            <div className="my-4 pt-2 border-t border-slate-100">
+                            <div className="my-4 pt-2 border-t border-slate-100 dark:border-slate-800">
                               <div className="flex justify-between items-center text-sm mb-2">
                                 <span className="text-slate-500 font-medium">Công suất:</span>
-                                <span className="font-bold text-slate-800">{eq.capacity} kg</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{eq.capacity} kg</span>
                               </div>
                               {eq.status === 'RUNNING' ? (
                                 <div>
@@ -427,10 +427,10 @@ export const EquipmentPage = () => {
                               )}
                             </div>
 
-                            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+                            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                               <span className="flex items-center gap-2">
                                 <span className={`w-2.5 h-2.5 rounded-full ${cfg.dotColor}`} />
-                                <span className="text-xs font-bold text-slate-600 uppercase">{cfg.text}</span>
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-350 uppercase">{cfg.text}</span>
                               </span>
 
                               {hasPermission('PUT:/api/equipment/{id}') && (
@@ -440,7 +440,7 @@ export const EquipmentPage = () => {
                                   style={{ width: 110 }}
                                   bordered={false}
                                   onChange={(val) => handleStatusChange(eq, val)}
-                                  className="text-xs font-bold text-indigo-600 bg-indigo-50/50 hover:bg-indigo-100/50 rounded-md"
+                                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/50 rounded-md"
                                   dropdownMatchSelectWidth={false}
                                 >
                                   <Select.Option value="IDLE">🟢 Rảnh</Select.Option>
@@ -464,7 +464,7 @@ export const EquipmentPage = () => {
             label: <span className="text-base px-2 font-medium"><UnorderedListOutlined /> Thiết lập & Quản lý danh mục</span>,
             children: (
               <div className="space-y-4 mt-4">
-                <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-xs border border-slate-100">
+                <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-xs border border-slate-100 dark:border-slate-800 transition-colors">
                   <Space size="middle">
                     <Input
                       placeholder="Tìm kiếm máy..."
@@ -515,7 +515,7 @@ export const EquipmentPage = () => {
                     current: (equipmentData?.page || 0) + 1,
                     showSizeChanger: false,
                   }}
-                  className="shadow-xs rounded-xl overflow-hidden border border-slate-100 bg-white"
+                  className="shadow-xs rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
                 />
               </div>
             )
