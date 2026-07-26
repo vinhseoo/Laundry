@@ -375,7 +375,7 @@ export const OrderListPage = () => {
               value={status}
               size="small"
               bordered={false}
-              className="font-bold border border-slate-100 rounded-md bg-slate-50 text-xs"
+              className="font-bold border border-slate-100 dark:border-slate-800 rounded-md bg-slate-50 dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-200 transition-colors"
               style={{ width: 140 }}
               onChange={(val) => updateStatusMutation.mutate({ orderId: record.id, status: val })}
             >

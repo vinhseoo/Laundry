@@ -168,7 +168,7 @@ export const EquipmentPage = () => {
         return { 
           color: 'success', 
           text: 'Sẵn sàng (Rảnh)', 
-          bgClass: 'border-emerald-200 bg-emerald-50/50',
+          bgClass: 'border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400',
           glowClass: 'shadow-[0_0_15px_rgba(16,185,129,0.15)] border-emerald-500/30',
           dotColor: 'bg-emerald-500',
           icon: '🟢'
@@ -177,7 +177,7 @@ export const EquipmentPage = () => {
         return { 
           color: 'processing', 
           text: 'Đang chạy', 
-          bgClass: 'border-indigo-200 bg-indigo-50/50',
+          bgClass: 'border-indigo-200 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-450',
           glowClass: 'shadow-[0_0_15px_rgba(99,102,241,0.2)] border-indigo-500/30',
           dotColor: 'bg-indigo-500 animate-ping',
           icon: '🌀'
@@ -186,17 +186,17 @@ export const EquipmentPage = () => {
         return { 
           color: 'warning', 
           text: 'Bảo trì', 
-          bgClass: 'border-amber-200 bg-amber-50/50',
+          bgClass: 'border-amber-200 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400',
           glowClass: 'shadow-[0_0_15px_rgba(245,158,11,0.15)] border-amber-500/30',
           dotColor: 'bg-amber-500',
           icon: '🛠️'
         };
       case 'OUT_OF_SERVICE':
-        default:
+      default:
         return { 
           color: 'error', 
           text: 'Hỏng hóc (Khóa)', 
-          bgClass: 'border-red-200 bg-red-50/50',
+          bgClass: 'border-red-200 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/20 text-red-700 dark:text-red-400',
           glowClass: 'shadow-[0_0_15px_rgba(239,68,68,0.15)] border-red-500/30',
           dotColor: 'bg-red-500',
           icon: '⚠️'
