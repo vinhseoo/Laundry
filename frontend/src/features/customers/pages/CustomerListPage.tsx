@@ -15,7 +15,6 @@ import {
   Drawer,
   Steps,
   Divider,
-  Badge,
   Row,
   Col
 } from 'antd';
@@ -31,8 +30,7 @@ import {
   DeleteOutlined,
   HistoryOutlined,
   InfoCircleOutlined,
-  EnvironmentOutlined,
-  ScheduleOutlined
+  EnvironmentOutlined
 } from '@ant-design/icons';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { customerService } from '@/services/customerService';
