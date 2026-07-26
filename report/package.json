@@ -1,0 +1,13 @@
+{
+  "name": "bubbleflow-report-generator",
+  "version": "1.0.0",
+  "description": "Generate DOCX for BubbleFlow graduation report",
+  "main": "compile.js",
+  "scripts": {
+    "compile": "node compile.js"
+  },
+  "dependencies": {
+    "html-to-docx": "^1.8.0",
+    "marked": "^9.1.6"
+  }
+}
