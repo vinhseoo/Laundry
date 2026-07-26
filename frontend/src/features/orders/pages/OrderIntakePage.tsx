@@ -187,8 +187,8 @@ export const OrderIntakePage = () => {
           {/* Customer info */}
           <div className="lg:col-span-1 space-y-6">
             <Card 
-              title={<span className="font-bold text-slate-800"><FileTextOutlined className="mr-2 text-indigo-500" /> Thông tin khách hàng</span>}
-              className="shadow-sm rounded-2xl border border-slate-100 bg-white"
+              title={<span className="font-bold text-slate-800 dark:text-slate-200"><FileTextOutlined className="mr-2 text-indigo-500" /> Thông tin khách hàng</span>}
+              className="shadow-sm rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
             >
               <Form.Item
                 name="customerPhone"
@@ -283,13 +283,13 @@ export const OrderIntakePage = () => {
             <Card 
               title={
                 <div className="flex justify-between items-center w-full">
-                  <span className="font-bold text-slate-800">Dịch vụ giặt là chi tiết</span>
-                  <span className="text-xs text-indigo-500 font-semibold bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+                  <span className="font-bold text-slate-800 dark:text-slate-200">Dịch vụ giặt là chi tiết</span>
+                  <span className="text-xs text-indigo-500 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40 transition-colors">
                     {itemsList.length} Dịch vụ
                   </span>
                 </div>
               }
-              className="shadow-sm rounded-2xl border border-slate-100 bg-white"
+              className="shadow-sm rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
             >
               <Form.List name="items">
                 {(fields, { add, remove }) => (
@@ -302,7 +302,7 @@ export const OrderIntakePage = () => {
                       return (
                         <div 
                           key={key} 
-                          className="p-4 bg-slate-50/50 hover:bg-slate-50 transition-colors border border-slate-100 rounded-xl relative pt-6 md:pt-4"
+                          className="p-4 bg-slate-50/50 dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-950/60 transition-colors border border-slate-100 dark:border-slate-800 rounded-xl relative pt-6 md:pt-4"
                         >
                           {/* Close button on top-right for mobile */}
                           {fields.length > 1 && (
@@ -321,7 +321,7 @@ export const OrderIntakePage = () => {
                               name={[name, 'serviceId']}
                               rules={[{ required: true, message: 'Chọn dịch vụ' }]}
                               className="md:col-span-5 !mb-0"
-                              label={<span className="text-xs font-semibold text-slate-500">Dịch vụ</span>}
+                              label={<span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Dịch vụ</span>}
                             >
                               <Select 
                                 placeholder="Chọn gói dịch vụ..." 
@@ -347,7 +347,7 @@ export const OrderIntakePage = () => {
                               name={[name, 'quantity']}
                               rules={[{ required: true, message: 'Nhập số lượng' }]}
                               className="md:col-span-3 !mb-0"
-                              label={<span className="text-xs font-semibold text-slate-500">Số lượng ({unitText})</span>}
+                              label={<span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Số lượng ({unitText})</span>}
                             >
                               <InputNumber 
                                 min={0.1} 
@@ -361,7 +361,7 @@ export const OrderIntakePage = () => {
                               {...restField}
                               name={[name, 'notes']}
                               className="md:col-span-3 !mb-0"
-                              label={<span className="text-xs font-semibold text-slate-500">Lưu ý riêng</span>}
+                              label={<span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Lưu ý riêng</span>}
                             >
                               <Input placeholder="Bị rách, lem màu..." style={{ borderRadius: 8 }} />
                             </Form.Item>
@@ -403,7 +403,7 @@ export const OrderIntakePage = () => {
         title={
           <div className="flex items-center gap-2">
             <CheckCircleOutlined className="text-emerald-500 text-xl" />
-            <span className="font-bold text-slate-800">Biên Nhận Đơn Hàng</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">Biên Nhận Đơn Hàng</span>
           </div>
         }
         open={isReceiptOpen}

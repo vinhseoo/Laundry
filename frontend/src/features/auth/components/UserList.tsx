@@ -182,7 +182,7 @@ export const UserList = () => {
       title: 'Họ và tên',
       dataIndex: 'fullName',
       key: 'fullName',
-      render: (fullName: string) => <span className="font-semibold text-gray-800">{fullName}</span>,
+      render: (fullName: string) => <span className="font-semibold text-slate-800 dark:text-slate-200">{fullName}</span>,
     },
     {
       title: 'Email',
@@ -281,7 +281,7 @@ export const UserList = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-xs">
+      <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-xs border border-slate-100 dark:border-slate-800 transition-colors">
         <Input
           placeholder="Tìm kiếm người dùng..."
           prefix={<SearchOutlined className="text-gray-400" />}
@@ -313,7 +313,7 @@ export const UserList = () => {
           current: (usersData?.page || 0) + 1,
           showSizeChanger: false,
         }}
-        className="shadow-xs rounded-xl overflow-hidden"
+        className="shadow-xs rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
       />
 
       {/* Add User Modal */}
@@ -398,7 +398,7 @@ export const UserList = () => {
         <Form form={editForm} layout="vertical" className="mt-4">
           <div className="mb-4">
             <span className="block text-gray-400 text-xs">Email tài khoản:</span>
-            <span className="font-semibold text-gray-800">{selectedUser?.email}</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedUser?.email}</span>
           </div>
 
           <Form.Item
@@ -450,7 +450,7 @@ export const UserList = () => {
         <Form form={resetForm} layout="vertical" className="mt-4">
           <div className="mb-4">
             <span className="block text-gray-400 text-xs font-medium">Đặt lại mật khẩu cho tài khoản:</span>
-            <span className="font-semibold text-gray-800">{selectedUser?.fullName} ({selectedUser?.email})</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedUser?.fullName} ({selectedUser?.email})</span>
           </div>
 
           <Form.Item

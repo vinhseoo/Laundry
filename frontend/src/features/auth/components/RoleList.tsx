@@ -182,7 +182,7 @@ export const RoleList = () => {
       title: 'Tên vai trò',
       dataIndex: 'name',
       key: 'name',
-      render: (name: string) => <span className="font-semibold text-gray-800">{name}</span>,
+      render: (name: string) => <span className="font-semibold text-slate-800 dark:text-slate-200">{name}</span>,
     },
     {
       title: 'Mô tả',
@@ -248,7 +248,7 @@ export const RoleList = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-xs">
+      <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-xs border border-slate-100 dark:border-slate-800 transition-colors">
         <Input
           placeholder="Tìm kiếm vai trò..."
           prefix={<SearchOutlined className="text-gray-400" />}
@@ -278,7 +278,7 @@ export const RoleList = () => {
           current: (rolesData?.page || 0) + 1,
           showSizeChanger: false,
         }}
-        className="shadow-xs rounded-xl overflow-hidden"
+        className="shadow-xs rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
       />
 
       <Modal
@@ -345,13 +345,13 @@ export const RoleList = () => {
           )}
 
           <div className="mt-4">
-            <span className="block mb-2 font-medium text-gray-700">Phân quyền chi tiết (API Endpoints):</span>
+            <span className="block mb-2 font-medium text-slate-700 dark:text-slate-350">Phân quyền chi tiết (API Endpoints):</span>
             {isPermissionsLoading ? (
               <div className="text-center py-4 text-gray-400">Đang tải danh sách phân quyền...</div>
             ) : (
               <Collapse 
                 size="small" 
-                className="bg-white rounded-lg overflow-hidden border border-gray-200"
+                className="bg-white dark:bg-slate-950 rounded-lg overflow-hidden border border-gray-200 dark:border-slate-800 transition-colors"
               >
                 {Object.keys(groupedPermissions).map((group, idx) => {
                   const groupPerms = groupedPermissions[group];
@@ -360,12 +360,12 @@ export const RoleList = () => {
                   // In ALL mode, everything is checked
                   const isAllGroupChecked = roleType === 'ALL' || groupIds.every(id => selectedPermissionIds.includes(id));
                   const isGroupPartiallyChecked = roleType !== 'ALL' && groupIds.some(id => selectedPermissionIds.includes(id)) && !isAllGroupChecked;
-
+ 
                   return (
                     <Collapse.Panel 
                       header={
                         <div className="flex justify-between items-center w-full pr-4" onClick={(e) => e.stopPropagation()}>
-                          <span className="font-semibold text-gray-700">{group}</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">{group}</span>
                           <Checkbox
                             checked={isAllGroupChecked}
                             indeterminate={isGroupPartiallyChecked}
@@ -390,9 +390,9 @@ export const RoleList = () => {
                                 <Tag color={getMethodColor(perm.method)} style={{ minWidth: 60, textAlign: 'center', borderRadius: 4 }}>
                                   {perm.method}
                                 </Tag>
-                                <span className="text-gray-800 font-mono text-xs">{perm.path}</span>
-                                <span className="text-gray-400">|</span>
-                                <span className="text-gray-600 font-medium">{perm.description}</span>
+                                <span className="text-slate-800 dark:text-slate-200 font-mono text-xs">{perm.path}</span>
+                                <span className="text-slate-400">|</span>
+                                <span className="text-slate-600 dark:text-slate-400 font-medium">{perm.description}</span>
                               </Space>
                             </Checkbox>
                           </Col>

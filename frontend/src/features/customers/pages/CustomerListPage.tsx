@@ -180,7 +180,7 @@ export const CustomerListPage: FC = () => {
           <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
             {record.name.charAt(0).toUpperCase()}
           </div>
-          <span className="font-semibold text-slate-800">{record.name}</span>
+          <span className="font-semibold text-slate-800 dark:text-slate-200">{record.name}</span>
         </Space>
       )
     },
@@ -189,7 +189,7 @@ export const CustomerListPage: FC = () => {
       dataIndex: 'phone',
       key: 'phone',
       render: (phone: string) => (
-        <span className="font-medium text-slate-600 font-mono">
+        <span className="font-medium text-slate-600 dark:text-slate-350 font-mono">
           <PhoneOutlined className="mr-1.5 text-slate-400" />
           {phone}
         </span>
@@ -201,7 +201,7 @@ export const CustomerListPage: FC = () => {
       key: 'totalOrders',
       sorter: (a, b) => a.totalOrders - b.totalOrders,
       render: (orders: number) => (
-        <span className="font-bold text-slate-700">
+        <span className="font-bold text-slate-700 dark:text-slate-200">
           <SolutionOutlined className="mr-1.5 text-slate-400" />
           {orders || 0}
         </span>
@@ -279,7 +279,7 @@ export const CustomerListPage: FC = () => {
     <PageContainer title="Quản Lý Khách Hàng">
       <div className="space-y-4">
         {/* Search Bar & Add Button */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-xs border border-slate-100 flex-wrap gap-4">
+        <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-xs border border-slate-100 dark:border-slate-800 transition-colors flex-wrap gap-4">
           <Space size="middle">
             <Input
               placeholder="Tìm theo tên, số điện thoại..."
@@ -326,7 +326,7 @@ export const CustomerListPage: FC = () => {
               setPageSize(s);
             }
           }}
-          className="shadow-xs rounded-xl overflow-hidden border border-slate-100 bg-white"
+          className="shadow-xs rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
         />
       </div>
 
@@ -335,7 +335,7 @@ export const CustomerListPage: FC = () => {
         title={
           <div className="flex items-center gap-2">
             <UserOutlined className="text-indigo-500 text-xl" />
-            <span className="font-bold text-slate-800">
+            <span className="font-bold text-slate-800 dark:text-slate-200">
               {editingCustomer ? 'Cập Nhật Thông Tin Khách Hàng' : 'Thêm Khách Hàng Mới'}
             </span>
           </div>

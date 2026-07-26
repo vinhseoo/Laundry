@@ -69,8 +69,8 @@ const OrderTimelineSteps = ({ record }: { record: OrderResponse }) => {
         items={steps}
       />
       {record.notes && (
-        <div className="mt-3 text-xs text-slate-600 bg-white p-2 border border-slate-100 rounded-md">
-          <span className="font-bold text-slate-700">Ghi chú đơn hàng:</span> {record.notes}
+        <div className="mt-3 text-xs text-slate-600 dark:text-slate-350 bg-white dark:bg-slate-900 p-2 border border-slate-100 dark:border-slate-800 rounded-md">
+          <span className="font-bold text-slate-700 dark:text-slate-200">Ghi chú đơn hàng:</span> {record.notes}
         </div>
       )}
     </div>
@@ -264,8 +264,8 @@ export const OrderListPage = () => {
       key: 'customer',
       render: (_, record) => (
         <div>
-          <div className="font-semibold text-slate-800">{record.customerName}</div>
-          <div className="text-xs text-slate-500">{record.customerPhone}</div>
+          <div className="font-semibold text-slate-800 dark:text-slate-200">{record.customerName}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">{record.customerPhone}</div>
         </div>
       ),
     },
@@ -287,7 +287,7 @@ export const OrderListPage = () => {
       dataIndex: 'totalAmount',
       key: 'totalAmount',
       render: (amount: number) => (
-        <span className="font-bold text-slate-800 font-mono">
+        <span className="font-bold text-slate-800 dark:text-slate-200 font-mono">
           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount)}
         </span>
       ),
@@ -424,7 +424,7 @@ export const OrderListPage = () => {
                 )}
 
                 {/* Search Bar */}
-                <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl border border-slate-100 shadow-xs">
+                <div className="flex flex-wrap gap-4 items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-xs transition-colors">
                   <Input
                     placeholder="Tìm theo mã đơn, khách hàng, số điện thoại..."
                     prefix={<SearchOutlined className="text-gray-400" />}
@@ -477,7 +477,7 @@ export const OrderListPage = () => {
                     expandedRowRender: (record) => <OrderTimelineSteps record={record} />,
                     rowExpandable: () => true,
                   }}
-                  className="shadow-xs rounded-xl overflow-hidden border border-slate-100 bg-white"
+                  className="shadow-xs rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
                 />
               </div>
             )
@@ -487,9 +487,9 @@ export const OrderListPage = () => {
             label: <span className="text-base px-2 font-medium"><CompassOutlined /> Trung tâm Điều phối Máy</span>,
             children: (
               <div className="space-y-6 mt-4">
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs">
-                  <h3 className="font-bold text-slate-800 text-lg mb-2">⚡ Sơ đồ máy giặt & máy sấy đang vận hành</h3>
-                  <p className="text-sm text-slate-400">Giám sát và kết thúc quá trình giặt/sấy của từng giỏ đồ trong thiết bị.</p>
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs transition-colors">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg mb-2">⚡ Sơ đồ máy giặt & máy sấy đang vận hành</h3>
+                  <p className="text-sm text-slate-400 dark:text-slate-500">Giám sát và kết thúc quá trình giặt/sấy của từng giỏ đồ trong thiết bị.</p>
                 </div>
 
                 {isEquipmentLoading || isBasketsLoading ? (
@@ -507,10 +507,10 @@ export const OrderListPage = () => {
                       return (
                         <Col xs={24} sm={12} md={8} lg={6} key={eq.id}>
                           <Card
-                            className={`border transition-all duration-300 rounded-2xl bg-white overflow-hidden ${
+                            className={`border transition-all duration-300 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden ${
                               isRunning 
-                                ? 'shadow-[0_0_15px_rgba(99,102,241,0.15)] border-indigo-200 bg-indigo-50/10' 
-                                : 'border-slate-100 shadow-xs'
+                                ? 'shadow-[0_0_15px_rgba(99,102,241,0.15)] border-indigo-200 dark:border-indigo-800/40 bg-indigo-50/10 dark:bg-indigo-950/10' 
+                                : 'border-slate-100 dark:border-slate-800 shadow-xs'
                             }`}
                             bodyStyle={{ padding: '20px' }}
                           >
@@ -519,25 +519,25 @@ export const OrderListPage = () => {
                                 <span className="text-xs font-bold text-slate-400 tracking-wider block uppercase">
                                   {eq.type === 'WASHING_MACHINE' ? '🧼 MÁY GIẶT' : '💨 MÁY SẤY'}
                                 </span>
-                                <h4 className="text-base font-bold text-slate-800 mt-1">{eq.name}</h4>
-                                <span className="text-xs font-bold text-indigo-500">{eq.code}</span>
+                                <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 mt-1">{eq.name}</h4>
+                                <span className="text-xs font-bold text-indigo-500 dark:text-indigo-400">{eq.code}</span>
                               </div>
                               <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${isRunning ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>
                                 {eq.type === 'WASHING_MACHINE' ? '🧼' : '💨'}
                               </span>
                             </div>
 
-                            <div className="py-3 border-t border-slate-100 my-3">
+                            <div className="py-3 border-t border-slate-100 dark:border-slate-800 my-3">
                               {isRunning && loadedBaskets.length > 0 ? (
                                 <div className="space-y-3">
                                   <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
                                     {loadedBaskets.map((b) => (
-                                      <div key={b.id} className="flex justify-between items-center text-xs bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                      <div key={b.id} className="flex justify-between items-center text-xs bg-slate-50 dark:bg-slate-950/40 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
                                         <div>
                                           <Tag color="geekblue" className="m-0 font-bold text-[10px]">🧺 {b.basketCode}</Tag>
-                                          <span className="font-semibold text-slate-500 ml-1.5 font-mono text-[10px]">{b.orderCode}</span>
+                                          <span className="font-semibold text-slate-500 dark:text-slate-400 ml-1.5 font-mono text-[10px]">{b.orderCode}</span>
                                         </div>
-                                        <span className="font-bold text-slate-600 text-[10px]">{b.orderWeight || 0} kg</span>
+                                        <span className="font-bold text-slate-600 dark:text-slate-350 text-[10px]">{b.orderWeight || 0} kg</span>
                                       </div>
                                     ))}
                                   </div>
@@ -556,7 +556,7 @@ export const OrderListPage = () => {
                               )}
                             </div>
 
-                            <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
+                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                               <span className="text-xs">{getMachineStatusBadge(eq.status)}</span>
                               
                               {isRunning && loadedBaskets.length > 0 && hasPermission('PUT:/api/baskets/{id}/release') && (
