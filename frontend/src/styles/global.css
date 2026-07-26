@@ -152,3 +152,33 @@ html.dark body {
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
+/* ===== Dark Mode Contrast Overrides for Tailwind Utilities ===== */
+html.dark .text-slate-800, html.dark .text-gray-800 {
+  color: #f1f5f9 !important; /* slate-100 */
+}
+html.dark .text-slate-700, html.dark .text-gray-700 {
+  color: #e2e8f0 !important; /* slate-200 */
+}
+html.dark .text-slate-600, html.dark .text-gray-600 {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+html.dark .text-slate-500, html.dark .text-gray-500 {
+  color: #94a3b8 !important; /* slate-400 */
+}
+html.dark .text-slate-400, html.dark .text-gray-400 {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+html.dark .text-indigo-600, html.dark .text-indigo-700 {
+  color: #818cf8 !important; /* indigo-400 */
+}
+html.dark .text-purple-600, html.dark .text-purple-700 {
+  color: #c084fc !important; /* purple-400 */
+}
+html.dark .text-emerald-600, html.dark .text-emerald-700, html.dark .text-green-600 {
+  color: #34d399 !important; /* emerald-400 */
+}
+html.dark .text-amber-600, html.dark .text-orange-600 {
+  color: #fbbf24 !important; /* amber-400 */
+}
+
+
