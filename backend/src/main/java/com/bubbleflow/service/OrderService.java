@@ -14,6 +14,7 @@ public interface OrderService {
     OrderResponse updateStatus(Long id, String status);
     OrderResponse assignRack(Long id, Long rackId);
     OrderResponse deliverOrder(Long id, OrderDeliveryRequest request);
+    OrderResponse notifyCustomer(Long id);
     List<OrderResponse> getSlaWarnings();
     void delete(Long id);
 }

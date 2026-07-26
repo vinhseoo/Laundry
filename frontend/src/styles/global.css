@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
+@source "../**/*.{ts,tsx}";
 
 /* ===== Global Resets ===== */
 * {
@@ -21,6 +22,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
   color: rgba(0, 0, 0, 0.88);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+  background-color: #0f172a;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 /* ===== Scrollbar Styling ===== */
@@ -54,9 +61,14 @@ body {
   box-shadow: 0 10px 20px rgba(99, 102, 241, 0.06), 0 4px 8px rgba(0, 0, 0, 0.04);
 }
 
-/* Table row hover */
+/* Table row hover in light mode */
 .ant-table-tbody > tr:hover > td {
-  background: #e0e7ff !important; /* Soft Indigo */
+  background: #f1f5f9 !important; /* Soft Gray */
+}
+
+/* Table row hover in dark mode */
+.dark .ant-table-tbody > tr:hover > td {
+  background: #1e293b !important; /* Slate 800 */
 }
 
 /* Page transition */

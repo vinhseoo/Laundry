@@ -91,12 +91,27 @@ function App() {
       ...themeConfig.components,
       Layout: {
         ...themeConfig.components.Layout,
-        bodyBg: isDarkMode ? '#0f172a' : '#f8fafc',
-        headerBg: isDarkMode ? '#1e293b' : '#ffffff',
+        bodyBg: isDarkMode ? '#090d16' : '#f8fafc',
+        headerBg: isDarkMode ? '#0f172a' : '#ffffff',
       },
       Table: {
-        headerBg: isDarkMode ? '#1e293b' : '#f8fafc',
-        borderColor: isDarkMode ? '#334155' : '#f1f5f9',
+        headerBg: isDarkMode ? '#0f172a' : '#f8fafc',
+        borderColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+        rowHoverBg: isDarkMode ? '#1e293b' : '#f8fafc',
+      },
+      Tabs: {
+        cardBg: isDarkMode ? '#0f172a' : '#f1f5f9',
+        activeCardBg: isDarkMode ? '#090d16' : '#ffffff',
+        titleSelectedColor: '#6366f1',
+        titleColor: isDarkMode ? '#94a3b8' : '#475569',
+        titleHoverColor: '#6366f1',
+      },
+      Breadcrumb: {
+        itemColor: isDarkMode ? '#94a3b8' : '#64748b',
+        lastItemColor: isDarkMode ? '#f8fafc' : '#0f172a',
+        separatorColor: isDarkMode ? '#475569' : '#cbd5e1',
+        linkColor: isDarkMode ? '#cbd5e1' : '#475569',
+        linkHoverColor: '#6366f1',
       }
     },
   };

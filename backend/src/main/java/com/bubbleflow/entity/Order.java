@@ -67,6 +67,13 @@ public class Order extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "customer_notified", nullable = false)
+    @Builder.Default
+    private Boolean customerNotified = false;
+
+    @Column(name = "notified_at")
+    private java.time.LocalDateTime notifiedAt;
+
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;

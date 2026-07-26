@@ -212,6 +212,8 @@ export interface OrderResponse {
   slaRemainingMinutes?: number | null;
   slaViolated?: boolean;
   currentDuration?: string;
+  customerNotified?: boolean;
+  notifiedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
   createdBy?: string;
@@ -259,6 +261,8 @@ export interface StorageRackResponse {
   currentOrderCode?: string | null;
   currentCustomerName?: string | null;
   currentOrderId?: number | null;
+  currentCustomerNotified?: boolean | null;
+  currentNotifiedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
 }

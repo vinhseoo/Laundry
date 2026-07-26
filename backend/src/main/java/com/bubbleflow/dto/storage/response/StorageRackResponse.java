@@ -16,6 +16,8 @@ public class StorageRackResponse {
     private String currentOrderCode;
     private String currentCustomerName;
     private Long currentOrderId;
+    private Boolean currentCustomerNotified;
+    private LocalDateTime currentNotifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

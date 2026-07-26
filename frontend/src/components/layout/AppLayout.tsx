@@ -75,17 +75,17 @@ export const AppLayout: FC = () => {
 
   const notificationMenu = (
     <Card 
-      className="shadow-2xl border border-slate-100 rounded-2xl w-80 md:w-96 overflow-hidden"
+      className="shadow-2xl border border-slate-100 dark:border-slate-850 rounded-2xl w-80 md:w-96 overflow-hidden"
       bodyStyle={{ padding: 0 }}
     >
-      <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-        <span className="font-bold text-slate-800">Thông báo mới</span>
+      <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <span className="font-bold text-slate-800 dark:text-slate-200">Thông báo mới</span>
         {unreadCount > 0 && (
           <Button 
             type="link" 
             size="small" 
             onClick={() => markAllMutation.mutate()} 
-            className="text-indigo-600 font-bold p-0"
+            className="text-indigo-600 dark:text-indigo-400 font-bold p-0"
           >
             Đọc tất cả
           </Button>
@@ -105,21 +105,21 @@ export const AppLayout: FC = () => {
                   markAsReadMutation.mutate(n.id);
                 }
               }}
-              className={`p-3 border-b border-slate-50 cursor-pointer transition-colors hover:bg-slate-50/50 flex gap-3 items-start ${
-                !n.isRead ? 'bg-indigo-50/30' : ''
+              className={`p-3 border-b border-slate-50 dark:border-slate-800/60 cursor-pointer transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/20 flex gap-3 items-start ${
+                !n.isRead ? 'bg-indigo-50/30 dark:bg-indigo-950/15' : ''
               }`}
             >
               <div className="text-lg">
                 {n.type === 'SLA_WARNING' ? '⚠️' : n.type === 'MACHINE_COMPLETED' ? '✅' : 'ℹ️'}
               </div>
               <div className="flex-1 space-y-1">
-                <div className={`text-xs ${!n.isRead ? 'font-bold text-slate-800' : 'text-slate-600'}`}>
+                <div className={`text-xs ${!n.isRead ? 'font-bold text-slate-800 dark:text-slate-200' : 'text-slate-600 dark:text-slate-400'}`}>
                   {n.title}
                 </div>
-                <div className="text-[11px] text-slate-500 leading-normal">
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
                   {n.content}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-400 dark:text-slate-500">
                   {dayjs(n.createdAt).format('DD/MM HH:mm')}
                 </div>
               </div>
@@ -248,7 +248,7 @@ export const AppLayout: FC = () => {
         />
       </Sider>
       <Layout>
-        <Header className={`h-16 px-6 flex justify-between items-center border-b transition-colors ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'}`}>
+        <Header className={`h-16 px-6 flex justify-between items-center border-b transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'}`}>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -265,19 +265,25 @@ export const AppLayout: FC = () => {
 
             <Dropdown dropdownRender={() => notificationMenu} placement="bottomRight" trigger={['click']} arrow>
               <Badge count={unreadCount} size="small" className="cursor-pointer">
-                <BellOutlined className="text-xl text-gray-600 hover:text-blue-600 transition-colors" />
+                <BellOutlined className="text-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" />
               </Badge>
             </Dropdown>
 
             <Dropdown menu={{ items: userDropdownItems, onClick: handleMenuClick }} placement="bottomRight" arrow>
               <div className="flex items-center gap-2 cursor-pointer">
                 <Avatar src={user?.avatarUrl} icon={<UserOutlined />} className="bg-blue-500" />
-                <span className="font-medium text-gray-700 hidden sm:inline">{user?.fullName || 'Tài khoản'}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-200 hidden sm:inline">{user?.fullName || 'Tài khoản'}</span>
               </div>
             </Dropdown>
           </div>
         </Header>
-        <Content className="min-h-[calc(100vh-64px)]">
+        <Content style={{ 
+          padding: '24px', 
+          minHeight: 'calc(100vh - 64px)', 
+          backgroundColor: isDarkMode ? '#090d16' : '#f8fafc',
+          color: isDarkMode ? '#f8fafc' : '#0f172a',
+          transition: 'all 0.3s ease'
+        }}>
           <Outlet />
         </Content>
       </Layout>

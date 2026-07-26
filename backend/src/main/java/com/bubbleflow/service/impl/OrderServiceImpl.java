@@ -20,6 +20,7 @@ import com.bubbleflow.repository.ServiceRepository;
 import com.bubbleflow.repository.OrderStateLogRepository;
 import com.bubbleflow.repository.StorageRackRepository;
 import com.bubbleflow.service.OrderService;
+import com.bubbleflow.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -53,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
     private final StateMachineFactory<OrderState, OrderEvent> stateMachineFactory;
     private final com.bubbleflow.repository.CustomerRepository customerRepository;
     private final com.bubbleflow.repository.LaundryBasketRepository laundryBasketRepository;
+    private final NotificationService notificationService;
     private final OrderMapper orderMapper;
 
     @Override
@@ -236,6 +238,31 @@ public class OrderServiceImpl implements OrderService {
 
         saveStateLog(order, oldStatus, "COMPLETED");
         log.info("Delivered order: {}", order.getOrderCode());
+        return toEnrichedResponse(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse notifyCustomer(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id));
+        if (!"AWAITING_DELIVERY".equals(order.getStatus())) {
+            throw new BusinessException("Chỉ được thông báo khách hàng khi đơn hàng đang chờ nhận (AWAITING_DELIVERY).");
+        }
+        order.setCustomerNotified(true);
+        order.setNotifiedAt(LocalDateTime.now());
+        order = orderRepository.save(order);
+
+        String rackName = order.getStorageRack() != null ? order.getStorageRack().getName() : "chưa gán kệ";
+        notificationService.createNotification(
+                "Đã thông báo khách hàng",
+                String.format("Khách hàng của đơn hàng %s đã được gửi thông báo đến nhận đồ tại %s.",
+                        order.getOrderCode(), rackName),
+                "CUSTOMER_NOTIFIED",
+                null
+        );
+
+        log.info("Customer notified for order: {}", order.getOrderCode());
         return toEnrichedResponse(order);
     }
 

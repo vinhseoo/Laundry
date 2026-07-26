@@ -246,7 +246,7 @@ export const CustomerListPage: FC = () => {
               />
             </Tooltip>
           )}
-          {hasPermission('PUT:/customers/{id}') && (
+          {hasPermission('PUT:/api/customers/{id}') && (
             <Tooltip title="Chỉnh sửa">
               <Button 
                 type="text" 
@@ -255,7 +255,7 @@ export const CustomerListPage: FC = () => {
               />
             </Tooltip>
           )}
-          {record.isActive && hasPermission('DELETE:/customers/{id}') && (
+          {record.isActive && hasPermission('DELETE:/api/customers/{id}') && (
             <Popconfirm
               title="Vô hiệu hóa khách hàng?"
               description="Bạn có chắc chắn muốn ngừng kích hoạt khách hàng này?"
@@ -300,7 +300,7 @@ export const CustomerListPage: FC = () => {
             </Button>
           </Space>
 
-          {hasPermission('POST:/customers') && (
+          {hasPermission('POST:/api/customers') && (
             <Button
               type="primary"
               icon={<PlusOutlined />}

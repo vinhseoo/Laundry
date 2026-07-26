@@ -106,6 +106,8 @@ public class StorageRackServiceImpl implements StorageRackService {
                 response.setCurrentOrderCode(order.getOrderCode());
                 response.setCurrentCustomerName(order.getCustomerName());
                 response.setCurrentOrderId(order.getId());
+                response.setCurrentCustomerNotified(order.getCustomerNotified());
+                response.setCurrentNotifiedAt(order.getNotifiedAt());
             });
         }
         return response;

@@ -77,6 +77,12 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok(orderService.deliverOrder(id, request)));
     }
 
+    @PutMapping("/{id}/notify-customer")
+    @Operation(summary = "Mark customer as notified", description = "Mark that the customer has been notified to pick up their completed laundry")
+    public ResponseEntity<ApiResponse<OrderResponse>> notifyCustomer(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(orderService.notifyCustomer(id)));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete order", description = "Soft delete an order from history")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {

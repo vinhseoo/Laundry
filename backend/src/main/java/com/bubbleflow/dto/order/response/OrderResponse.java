@@ -31,6 +31,8 @@ public class OrderResponse {
     private Long slaRemainingMinutes;
     private Boolean slaViolated;
     private String currentDuration;
+    private Boolean customerNotified;
+    private LocalDateTime notifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

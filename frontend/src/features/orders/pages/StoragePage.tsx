@@ -167,8 +167,15 @@ export const StoragePage: FC = () => {
       queryClient.invalidateQueries({ queryKey: ['storage-racks'] });
       message.success('Giao nhận trả hàng và thanh toán thành công 🧼');
       setIsDeliverOpen(false);
-      setSelectedOrderForDelivery(null);
-      deliveryForm.resetFields();
+    }
+  });
+
+  const notifyCustomerMutation = useMutation({
+    mutationFn: orderService.notifyCustomer,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['storage-racks'] });
+      message.success('Đã gửi thông báo cho khách hàng thành công 📲');
     }
   });
 
@@ -304,6 +311,46 @@ export const StoragePage: FC = () => {
       }
     },
     {
+      title: 'Thông báo khách',
+      key: 'customerNotified',
+      width: 180,
+      render: (_, record) => {
+        const canNotify = hasPermission('PUT:/api/orders/{id}/notify-customer');
+        if (record.customerNotified) {
+          return (
+            <div className="flex flex-col gap-1">
+              <Tag color="green" icon={<CheckCircleOutlined />} className="m-0 font-medium">
+                ĐÃ THÔNG BÁO
+              </Tag>
+              {record.notifiedAt && (
+                <span className="text-[10px] text-slate-500 font-mono">
+                  {dayjs(record.notifiedAt).format('DD/MM HH:mm')}
+                </span>
+              )}
+            </div>
+          );
+        }
+        return (
+          <Space>
+            <Tag color="orange" className="m-0 font-medium">
+              CHƯA BÁO
+            </Tag>
+            {canNotify && (
+              <Button
+                type="primary"
+                size="small"
+                className="bg-amber-500 hover:bg-amber-600 border-none text-[11px] font-bold"
+                onClick={() => notifyCustomerMutation.mutate(record.id)}
+                loading={notifyCustomerMutation.isPending}
+              >
+                Báo khách
+              </Button>
+            )}
+          </Space>
+        );
+      }
+    },
+    {
       title: 'Ngày tiếp nhận',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -317,7 +364,7 @@ export const StoragePage: FC = () => {
       fixed: 'right',
       render: (_, record) => (
         <Space size="middle">
-          {hasPermission('PUT:/orders/{id}/assign-rack') && (
+          {hasPermission('PUT:/api/orders/{id}/assign-rack') && (
             <Button 
               type="text" 
               className="text-purple-600 hover:text-purple-800"
@@ -327,7 +374,7 @@ export const StoragePage: FC = () => {
               Gán kệ
             </Button>
           )}
-          {hasPermission('PUT:/orders/{id}/delivery') && (
+          {hasPermission('PUT:/api/orders/{id}/delivery') && (
             <Button 
               type="primary" 
               className="bg-indigo-600 hover:bg-indigo-700"
@@ -359,9 +406,9 @@ export const StoragePage: FC = () => {
               </span>
             ),
             children: (
-              <div className="space-y-6">
+              <div className="space-y-6 mt-4">
                 {/* Search & Actions Bar */}
-                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white p-4 rounded-xl shadow-xs border border-slate-100">
+                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
                   <div className="flex flex-1 flex-col sm:flex-row gap-3">
                     <Input
                       placeholder="Tìm kiếm kệ lưu kho..."
@@ -390,7 +437,7 @@ export const StoragePage: FC = () => {
                       Đặt lại bộ lọc
                     </Button>
                   </div>
-                  {hasPermission('POST:/storage-racks') && (
+                  {hasPermission('POST:/api/storage-racks') && (
                     <Button
                       type="primary"
                       icon={<PlusOutlined />}
@@ -412,14 +459,14 @@ export const StoragePage: FC = () => {
                       {racksData?.content.map((rack) => (
                         <Col xs={24} sm={12} md={8} lg={6} key={rack.id}>
                           <Card
-                            className="shadow-sm hover:shadow-md transition-all border border-slate-100 hover:border-indigo-100 rounded-xl"
+                            className="shadow-sm hover:shadow-md transition-all border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-100 dark:hover:border-indigo-800 rounded-xl"
                             actions={[
-                              hasPermission('PUT:/storage-racks/{id}') && (
+                              hasPermission('PUT:/api/storage-racks/{id}') && (
                                 <Tooltip title="Chỉnh sửa" key="edit">
-                                  <EditOutlined onClick={() => handleOpenEditRack(rack)} className="hover:text-indigo-600" />
+                                  <EditOutlined onClick={() => handleOpenEditRack(rack)} className="text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400" />
                                 </Tooltip>
                               ),
-                              hasPermission('DELETE:/storage-racks/{id}') && (
+                              hasPermission('DELETE:/api/storage-racks/{id}') && (
                                 <Popconfirm
                                   title="Xóa kệ này?"
                                   description="Bạn chắc chắn muốn xóa kệ lưu kho này?"
@@ -428,7 +475,7 @@ export const StoragePage: FC = () => {
                                   cancelText="Hủy"
                                   key="delete"
                                 >
-                                  <DeleteOutlined className="text-red-500 hover:text-red-700" />
+                                  <DeleteOutlined className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400" />
                                 </Popconfirm>
                               )
                             ].filter(Boolean)}
@@ -441,14 +488,14 @@ export const StoragePage: FC = () => {
                                     rack.status === 'OCCUPIED' ? 'warning' : 'default'
                                   }
                                 >
-                                  <div className="w-12 h-12 bg-slate-100 flex items-center justify-center rounded-lg text-lg text-slate-600">
+                                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 flex items-center justify-center rounded-lg text-lg text-slate-600 dark:text-slate-350">
                                     📦
                                   </div>
                                 </Badge>
                               }
                               title={
                                 <div className="flex justify-between items-center">
-                                  <span className="font-bold text-slate-700">{rack.name}</span>
+                                  <span className="font-bold text-slate-700 dark:text-slate-200">{rack.name}</span>
                                   <Tag color={
                                     rack.status === 'AVAILABLE' ? 'green' :
                                     rack.status === 'OCCUPIED' ? 'orange' : 'default'
@@ -459,18 +506,46 @@ export const StoragePage: FC = () => {
                               }
                               description={
                                 <div className="space-y-2 mt-2">
-                                  <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                                  <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                                     Mã kệ: {rack.code}
                                   </div>
                                   
                                   {rack.status === 'OCCUPIED' ? (
-                                    <div className="mt-2 p-2 bg-amber-50 rounded-lg border border-amber-100 text-xs">
-                                      <div className="font-bold text-amber-800">Đơn hàng hiện tại:</div>
-                                      <div className="font-medium text-slate-700 mt-1">{rack.currentOrderCode}</div>
-                                      <div className="text-slate-500 mt-0.5">{rack.currentCustomerName}</div>
+                                    <div className="mt-2 p-2 bg-indigo-50/30 dark:bg-indigo-950/20 rounded-lg border border-indigo-100/50 dark:border-indigo-900/50 text-xs space-y-1.5">
+                                      <div>
+                                        <div className="font-bold text-indigo-800 dark:text-indigo-350">Đơn hàng hiện tại:</div>
+                                        <div className="font-bold text-slate-700 dark:text-slate-200 mt-0.5 font-mono">{rack.currentOrderCode}</div>
+                                        <div className="text-slate-600 dark:text-slate-300 font-medium">{rack.currentCustomerName}</div>
+                                      </div>
+                                      <div className="border-t border-indigo-100/50 dark:border-indigo-900/50 pt-1.5 flex justify-between items-center flex-wrap gap-1">
+                                        <span className="text-slate-400 dark:text-slate-500 text-[10px] font-semibold">Thông báo:</span>
+                                        {rack.currentCustomerNotified ? (
+                                          <Tooltip title={`Báo lúc: ${rack.currentNotifiedAt ? dayjs(rack.currentNotifiedAt).format('DD/MM/YYYY HH:mm') : '-'}`}>
+                                            <Tag color="green" className="m-0 text-[10px] font-bold py-0 px-1.5">ĐÃ BÁO</Tag>
+                                          </Tooltip>
+                                        ) : (
+                                          <div className="flex items-center gap-1.5">
+                                            <Tag color="orange" className="m-0 text-[10px] font-bold py-0 px-1.5">CHƯA BÁO</Tag>
+                                            {hasPermission('PUT:/api/orders/{id}/notify-customer') && rack.currentOrderId && (
+                                              <Button
+                                                type="primary"
+                                                size="small"
+                                                className="bg-amber-500 hover:bg-amber-600 border-none text-[9px] h-5 py-0 px-1.5 rounded flex items-center justify-center font-bold"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  notifyCustomerMutation.mutate(rack.currentOrderId!);
+                                                }}
+                                                loading={notifyCustomerMutation.isPending}
+                                              >
+                                                Báo
+                                              </Button>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                   ) : (
-                                    <div className="text-xs text-slate-400 italic mt-3">Kệ trống sẵn sàng xếp đồ</div>
+                                    <div className="text-xs text-slate-400 dark:text-slate-500 italic mt-3">Kệ trống sẵn sàng xếp đồ</div>
                                   )}
                                 </div>
                               }
@@ -515,46 +590,82 @@ export const StoragePage: FC = () => {
                 Đơn Hàng Chờ Trả
               </span>
             ),
-            children: (
-              <div className="space-y-4">
-                {/* Search Bar */}
-                <div className="flex justify-start items-center gap-3 bg-white p-4 rounded-xl shadow-xs border border-slate-100">
-                  <Input
-                    placeholder="Tìm kiếm theo mã đơn, tên, số điện thoại..."
-                    prefix={<SearchOutlined className="text-gray-400" />}
-                    value={orderSearch}
-                    onChange={(e) => setOrderSearch(e.target.value)}
-                    style={{ width: 360, borderRadius: 8 }}
-                    allowClear
-                  />
-                  <Button
-                    type="default"
-                    onClick={handleResetOrderFilters}
-                    style={{ borderRadius: 8 }}
-                  >
-                    Đặt lại bộ lọc
-                  </Button>
-                </div>
+            children: (() => {
+              const currentOrders = ordersData?.content || [];
+              const statsTotal = ordersData?.totalElements || 0;
+              const statsAssignedRack = currentOrders.filter(o => o.storageRackId).length;
+              const statsNotified = currentOrders.filter(o => o.customerNotified).length;
+              const statsUnnotified = currentOrders.filter(o => !o.customerNotified).length;
 
-                {/* Table */}
-                <Table
-                  rowKey="id"
-                  columns={orderColumns}
-                  dataSource={ordersData?.content || []}
-                  loading={isOrdersLoading}
-                  scroll={{ x: 1000 }}
-                  pagination={{
-                    current: orderPage + 1,
-                    pageSize: 20,
-                    total: ordersData?.totalElements,
-                    showSizeChanger: false,
-                    showTotal: (total) => `Tổng ${total} đơn hàng`,
-                    onChange: (p) => setOrderPage(p - 1),
-                  }}
-                  className="premium-table border border-slate-100 rounded-xl overflow-hidden"
-                />
-              </div>
-            )
+              return (
+                <div className="space-y-4 mt-4">
+                  {/* Statistics Summary Cards */}
+                  <Row gutter={[16, 16]} className="mb-4">
+                    <Col xs={12} sm={6}>
+                      <Card size="small" className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-center rounded-xl shadow-sm">
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Tổng chờ trả đồ</div>
+                        <div className="text-xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">{statsTotal}</div>
+                      </Card>
+                    </Col>
+                    <Col xs={12} sm={6}>
+                      <Card size="small" className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-center rounded-xl shadow-sm">
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Đã gán kệ (Trang)</div>
+                        <div className="text-xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">{statsAssignedRack} / {currentOrders.length}</div>
+                      </Card>
+                    </Col>
+                    <Col xs={12} sm={6}>
+                      <Card size="small" className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-center rounded-xl shadow-sm">
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Đã báo khách (Trang)</div>
+                        <div className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{statsNotified} / {currentOrders.length}</div>
+                      </Card>
+                    </Col>
+                    <Col xs={12} sm={6}>
+                      <Card size="small" className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-center rounded-xl shadow-sm">
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Chưa báo khách (Trang)</div>
+                        <div className="text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">{statsUnnotified} / {currentOrders.length}</div>
+                      </Card>
+                    </Col>
+                  </Row>
+
+                  {/* Search Bar */}
+                  <div className="flex justify-start items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+                    <Input
+                      placeholder="Tìm kiếm theo mã đơn, tên, số điện thoại..."
+                      prefix={<SearchOutlined className="text-gray-400" />}
+                      value={orderSearch}
+                      onChange={(e) => setOrderSearch(e.target.value)}
+                      style={{ width: 360, borderRadius: 8 }}
+                      allowClear
+                    />
+                    <Button
+                      type="default"
+                      onClick={handleResetOrderFilters}
+                      style={{ borderRadius: 8 }}
+                    >
+                      Đặt lại bộ lọc
+                    </Button>
+                  </div>
+
+                  {/* Table */}
+                  <Table
+                    rowKey="id"
+                    columns={orderColumns}
+                    dataSource={ordersData?.content || []}
+                    loading={isOrdersLoading}
+                    scroll={{ x: 1000 }}
+                    pagination={{
+                      current: orderPage + 1,
+                      pageSize: 20,
+                      total: ordersData?.totalElements,
+                      showSizeChanger: false,
+                      showTotal: (total) => `Tổng ${total} đơn hàng`,
+                      onChange: (p) => setOrderPage(p - 1),
+                    }}
+                    className="premium-table border border-slate-100 rounded-xl overflow-hidden"
+                  />
+                </div>
+              );
+            })()
           }
         ]}
       />

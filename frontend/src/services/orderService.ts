@@ -37,6 +37,10 @@ export const orderService = {
     return apiClient.get('/orders/sla-warnings');
   },
 
+  notifyCustomer: (id: number): Promise<ApiResponse<OrderResponse>> => {
+    return apiClient.put(`/orders/${id}/notify-customer`);
+  },
+
   delete: (id: number): Promise<ApiResponse<void>> => {
     return apiClient.delete(`/orders/${id}`);
   },
